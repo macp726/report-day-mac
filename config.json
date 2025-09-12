@@ -1,0 +1,9 @@
+{
+  "user_name": "Usuario Mac",
+  "company": "Mi Empresa",
+  "ai_enabled": true,
+  "template": "default",
+  "output_format": "html",
+  "language": "es",
+  "theme": "modern"
+}
