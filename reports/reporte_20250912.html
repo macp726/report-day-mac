@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Diario - 12 de September, 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .date {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .header .company {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.6rem;
+        }
+
+        .achievements { --accent-color: #2ecc71; }
+        .challenges { --accent-color: #f39c12; }
+        .next-steps { --accent-color: #3498db; }
+        .summary { --accent-color: #9b59b6; }
+
+        .section-title {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+        }
+
+        .item-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .item-list li {
+            background: #f8f9fa;
+            margin-bottom: 8px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .item-list li:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .mood-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            text-transform: capitalize;
+        }
+
+        .productivity-score {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71);
+            border-radius: 5px;
+            transition: width 1s ease-out;
+            animation: fillScore 2s ease-out 1s both;
+        }
+
+        @keyframes fillScore {
+            from { width: 0; }
+        }
+
+        .score-text {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .toggle-section {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { border-radius: 10px; }
+            .header { padding: 20px; }
+            .header h1 { font-size: 2rem; }
+            .content { padding: 20px; }
+            .section-title { font-size: 1.2rem; }
+        }
+
+        .interactive-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Reporte Diario</h1>
+            <div class="date">12 de September, 2025</div>
+            <div class="company">Mi Empresa - Usuario Mac</div>
+        </div>
+
+        <div class="content">
+            <div class="interactive-buttons">
+                <button class="btn btn-primary" onclick="toggleAllSections()">
+                    <span id="toggleText">Colapsar Todo</span>
+                </button>
+                <button class="btn btn-secondary" onclick="printReport()">
+                    🖨️ Imprimir
+                </button>
+                <button class="btn btn-secondary" onclick="shareReport()">
+                    📤 Compartir
+                </button>
+            </div>
+
+            <div class="section achievements">
+                <div class="section-title toggle-section" onclick="toggleSection('achievements')">
+                    <span class="section-icon">🎉</span>
+                    Logros del Día
+                    <span id="achievements-arrow" style="margin-left: auto;">▼</span>
+                </div>
+                <div id="achievements-content" class="section-content">
+                    <ul class="item-list">
+                        
+                        <li>✅ Completada la revisión de código del proyecto principal</li>
+                        
+                        <li>✅ Implementadas mejoras de rendimiento en el módulo de reportes</li>
+                        
+                        <li>✅ Participación en reunión de planificación semanal</li>
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section challenges">
+                <div class="section-title toggle-section" onclick="toggleSection('challenges')">
+                    <span class="section-icon">⚡</span>
+                    Desafíos y Obstáculos
+                    <span id="challenges-arrow" style="margin-left: auto;">▼</span>
+                </div>
+                <div id="challenges-content" class="section-content">
+                    <ul class="item-list">
+                        
+                        <li>⚠️ Pendiente resolución de conflicto en base de datos</li>
+                        
+                        <li>⚠️ Necesidad de optimizar consultas SQL complejas</li>
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section next-steps">
+                <div class="section-title toggle-section" onclick="toggleSection('next-steps')">
+                    <span class="section-icon">🚀</span>
+                    Próximos Pasos
+                    <span id="next-steps-arrow" style="margin-left: auto;">▼</span>
+                </div>
+                <div id="next-steps-content" class="section-content">
+                    <ul class="item-list">
+                        
+                        <li>🎯 Implementar nuevas funcionalidades de dashboard</li>
+                        
+                        <li>🎯 Revisar y actualizar documentación técnica</li>
+                        
+                        <li>🎯 Preparar presentación para cliente</li>
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section summary">
+                <div class="section-title">
+                    <span class="section-icon">💭</span>
+                    Resumen del Día
+                </div>
+                <div class="section-content">
+                    <p><strong>Estado de ánimo:</strong> 
+                        <span class="mood-indicator">productivo</span>
+                    </p>
+                    <div class="productivity-score">
+                        <span><strong>Productividad:</strong></span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 85%"></div>
+                        </div>
+                        <span class="score-text">85%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Generado con IA el 2025-09-12 a las 23:16:44 ✨
+        </div>
+    </div>
+
+    <script>
+        // Interactive functionality
+        let allCollapsed = false;
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const arrow = document.getElementById(sectionId + '-arrow');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('collapsed');
+                arrow.textContent = '▶';
+            }
+        }
+
+        function toggleAllSections() {
+            const sections = ['achievements', 'challenges', 'next-steps'];
+            const toggleText = document.getElementById('toggleText');
+            
+            sections.forEach(sectionId => {
+                const content = document.getElementById(sectionId + '-content');
+                const arrow = document.getElementById(sectionId + '-arrow');
+                
+                if (allCollapsed) {
+                    content.classList.remove('collapsed');
+                    arrow.textContent = '▼';
+                } else {
+                    content.classList.add('collapsed');
+                    arrow.textContent = '▶';
+                }
+            });
+            
+            allCollapsed = !allCollapsed;
+            toggleText.textContent = allCollapsed ? 'Expandir Todo' : 'Colapsar Todo';
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function shareReport() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Reporte Diario - 12 de September, 2025',
+                    text: 'Mi reporte diario generado con AI',
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                // Fallback: copy URL to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('URL copiada al portapapeles');
+                }).catch(() => {
+                    alert('URL: ' + window.location.href);
+                });
+            }
+        }
+
+        // Add some interactive hover effects
+        document.querySelectorAll('.item-list li').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.background = '#d4edda';
+                setTimeout(() => {
+                    this.style.background = '';
+                }, 300);
+            });
+        });
+
+        // Auto-scroll smooth behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
