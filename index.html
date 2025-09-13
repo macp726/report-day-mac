@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Status Pages</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #333; }
+    ul { list-style-type: none; padding: 0; }
+    li { margin: 5px 0; }
+    a { text-decoration: none; color: #007BFF; }
+    a:hover { text-decoration: underline; }
+    .note { margin-top: 20px; font-size: 0.9em; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Status Reports</h1>
+  <p id="today-message">Revisando si hay reporte para hoy...</p>
+
+  <h2>Historial de reportes</h2>
+  <ul id="status-list"></ul>
+
+  <script>
+    // 🔹 Lista de páginas disponibles (mantén este array actualizado)
+    const statusPages = [
+      "status-mac-12-09-2025.html",
+      "status-mac-13-09-2025.html",
+      "status-mac-14-09-2025.html"
+    ];
+
+    // Función para formatear fecha como DD-MM-YYYY
+    function formatDate(date) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+
+    // Fecha actual
+    const today = new Date();
+    const todayFormatted = formatDate(today);
+    const todayFile = `status-mac-${todayFormatted}.html`;
+
+    const message = document.getElementById("today-message");
+    const list = document.getElementById("status-list");
+
+    // Generar historial dinámico
+    statusPages.forEach(page => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = page;
+      a.textContent = page.replace("status-mac-", "Status ").replace(".html", "");
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+
+    // 🔹 Verificar si existe el reporte de hoy
+    fetch(todayFile, { method: "HEAD" })
+      .then(response => {
+        if (response.ok) {
+          message.innerHTML = `✅ Redirigiendo al reporte de hoy (${todayFormatted})...`;
+          setTimeout(() => { window.location.href = todayFile; }, 2000);
+        } else {
+          message.innerHTML = `⚠️ No hay reporte disponible para hoy (${todayFormatted}).`;
+        }
+      })
+      .catch(() => {
+        message.innerHTML = `❌ Error verificando el reporte de hoy.`;
+      });
+  </script>
+
+  <p class="note">Este listado se genera automáticamente desde el array en el código.</p>
+</body>
+</html>
