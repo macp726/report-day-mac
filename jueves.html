@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas Polluelo - Jueves</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .icon-btn {
+            @apply p-2 rounded-full hover:bg-gray-200 transition-colors duration-200;
+        }
+        /* Fix for title overflow on smaller screens */
+        @media (max-width: 640px) {
+            h1.text-4xl {
+                font-size: 2.25rem; /* Adjust font size for better fit */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-inter text-gray-800 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 text-center sm:text-left">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-600">Lista de Tareas Polluelo</h1>
+        </div>
+        <div id="todo-container">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Jueves - ¡A seguir trabajando!</h2>
+            <p class="text-gray-600 mb-6">¡Organiza tu día y no te pierdas nada!</p>
+            <button id="start-first-btn" class="w-full sm:w-auto px-6 py-3 mb-6 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-colors duration-300">
+                Iniciar primera tarea pendiente
+            </button>
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Tareas</h2>
+            <ul id="todo-list" class="space-y-4">
+                <!-- Tareas se renderizarán aquí -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dayId = 'jueves';
+            const localStorageKey = `tasks_${dayId}`;
+            let intervals = {};
+            const ALARM_INTERVAL_SECONDS = 30 * 60; // 30 minutes in seconds
+
+            // Initial data structure for Thursday
+            const initialData = {
+                day: "Jueves",
+                tasks: [
+                    { text: "Llegar y entregar el celular", durationMinutes: 2, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Almorzar", durationMinutes: 30, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Arreglar bibliotecas", durationMinutes: 30, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Descanso", durationMinutes: 30, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Resumen Biología", durationMinutes: 30, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Resumen Artes", durationMinutes: 30, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Resumen Ambiental", durationMinutes: 30, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Presentación de resúmenes", durationMinutes: 30, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Descanso y comida", durationMinutes: 45, completed: false, elapsed: 0, running: false, lastAlarm: 0 },
+                    { text: "Cepillado y a dormir", durationMinutes: 15, completed: false, elapsed: 0, running: false, lastAlarm: 0 }
+                ]
+            };
+
+            // Function to format time from seconds
+            function formatTime(seconds) {
+                const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+                const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+                const s = String(seconds % 60).padStart(2, '0');
+                return `${h}:${m}:${s}`;
+            }
+
+            // Function to save tasks to local storage
+            function saveTasks(tasks) {
+                try {
+                    localStorage.setItem(localStorageKey, JSON.stringify(tasks));
+                } catch (e) {
+                    console.error("Error al guardar en el almacenamiento local: ", e);
+                    showCustomModal("No se pudieron guardar las tareas localmente.");
+                }
+            }
+            
+            // Custom modal component for alerts
+            function showCustomModal(message) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center z-50';
+                const modalContent = document.createElement('div');
+                modalContent.className = 'bg-white p-6 rounded-lg shadow-xl m-4 max-w-sm w-full text-center';
+                modalContent.innerHTML = `
+                    <p class="text-gray-800 text-lg mb-4">${message}</p>
+                    <button id="close-modal" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none">Cerrar</button>
+                `;
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+
+                document.getElementById('close-modal').addEventListener('click', () => {
+                    modal.remove();
+                });
+            }
+
+            // Function to load tasks from local storage
+            function loadTasks() {
+                try {
+                    const storedTasks = localStorage.getItem(localStorageKey);
+                    if (storedTasks) {
+                        const tasks = JSON.parse(storedTasks);
+                        return tasks.map(task => ({
+                            ...initialData.tasks.find(t => t.text === task.text),
+                            ...task
+                        }));
+                    }
+                } catch (e) {
+                    console.error("Error al cargar desde el almacenamiento local: ", e);
+                }
+                return initialData.tasks;
+            }
+
+            // Function to start the timer for a specific task
+            function startTimer(tasks, index) {
+                for (let i = 0; i < tasks.length; i++) {
+                    if (intervals[i]) {
+                        clearInterval(intervals[i]);
+                        tasks[i].running = false;
+                    }
+                }
+
+                tasks[index].running = true;
+                intervals[index] = setInterval(() => {
+                    tasks[index].elapsed++;
+                    document.getElementById(`timer-${index}`).textContent = formatTime(tasks[index].elapsed);
+                    saveTasks(tasks);
+
+                    if (tasks[index].elapsed > tasks[index].lastAlarm + ALARM_INTERVAL_SECONDS) {
+                        showCustomModal(`¡Alarma para "${tasks[index].text}"! Han pasado 30 minutos.`);
+                        tasks[index].lastAlarm = tasks[index].elapsed;
+                        saveTasks(tasks);
+                    }
+                }, 1000);
+            }
+
+            // Function to pause the timer
+            function pauseTimer(tasks, index) {
+                if (intervals[index]) {
+                    tasks[index].running = false;
+                    clearInterval(intervals[i]);
+                    intervals[index] = null;
+                    saveTasks(tasks);
+                }
+            }
+            
+            // Function to calculate and display the start times dynamically
+            function calculateAndDisplayTimes(tasks) {
+                const now = new Date();
+                const firstPendingIndex = tasks.findIndex(task => !task.completed);
+                
+                if (firstPendingIndex === -1) {
+                    return; // No pending tasks
+                }
+
+                let currentTime = now;
+                for (let i = firstPendingIndex; i < tasks.length; i++) {
+                    const task = tasks[i];
+                    if (!task.completed) {
+                        const formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        task.startTime = formattedTime;
+                        
+                        // Add duration for the next task calculation
+                        currentTime.setMinutes(currentTime.getMinutes() + task.durationMinutes);
+                    }
+                }
+                saveTasks(tasks);
+                renderTasks(tasks);
+            }
+
+            // Function to render tasks on the page
+            function renderTasks(tasks) {
+                const todoList = document.getElementById('todo-list');
+                todoList.innerHTML = '';
+
+                let allTasksCompleted = true;
+
+                tasks.forEach((task, index) => {
+                    const li = document.createElement('li');
+                    li.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-xl shadow-sm transition-all duration-300 ${task.completed ? 'opacity-60 line-through' : ''}`;
+                    li.innerHTML = `
+                        <div class="flex items-center mb-2 sm:mb-0">
+                            <input type="checkbox" id="task-checkbox-${index}" class="form-checkbox h-5 w-5 text-blue-600 rounded-lg" ${task.completed ? 'checked' : ''}>
+                            <div class="ml-4">
+                                <label for="task-checkbox-${index}" class="text-gray-800 text-lg font-medium">${task.text}</label>
+                                <div class="text-sm text-gray-500 mt-1">Hora: ${task.startTime ? task.startTime : 'Sin definir'}</div>
+                                <div class="text-sm text-gray-500">Duración: ${task.durationMinutes} min</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+                            <span id="timer-${index}" class="font-mono text-sm text-gray-600 w-20 text-right">${formatTime(task.elapsed)}</span>
+                            <button id="start-btn-${index}" class="icon-btn start-btn" title="${task.running ? 'Pausar' : 'Iniciar'}">
+                                ${task.running ? `
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                ` : `
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                                    </svg>
+                                `}
+                            </button>
+                        </div>
+                    `;
+                    
+                    const checkbox = li.querySelector(`#task-checkbox-${index}`);
+                    const actionBtn = li.querySelector(`#start-btn-${index}`);
+
+                    if (task.completed) {
+                        actionBtn.style.display = 'none';
+                    } else {
+                        allTasksCompleted = false;
+                    }
+
+                    checkbox.addEventListener('change', (e) => {
+                        tasks[index].completed = e.target.checked;
+                        if (e.target.checked) {
+                            pauseTimer(tasks, index);
+                        }
+                        saveTasks(tasks);
+                        renderTasks(tasks);
+                    });
+
+                    actionBtn.addEventListener('click', () => {
+                        if (task.running) {
+                            pauseTimer(tasks, index);
+                        } else {
+                            startTimer(tasks, index);
+                        }
+                        renderTasks(tasks);
+                    });
+
+                    if (task.running && !task.completed) {
+                        startTimer(tasks, index);
+                    }
+
+                    todoList.appendChild(li);
+                });
+
+                const startAllBtn = document.getElementById('start-first-btn');
+                if (allTasksCompleted) {
+                    startAllBtn.style.display = 'none';
+                } else {
+                    startAllBtn.style.display = 'block';
+                }
+            }
+
+            const tasks = loadTasks();
+            renderTasks(tasks);
+
+            document.getElementById('start-first-btn').addEventListener('click', () => {
+                const tasks = loadTasks();
+                calculateAndDisplayTimes(tasks);
+                const firstPendingIndex = tasks.findIndex(task => !task.completed);
+                if (firstPendingIndex !== -1) {
+                    startTimer(tasks, firstPendingIndex);
+                    renderTasks(tasks);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
