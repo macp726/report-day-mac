@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Cambios - WebToq Chat Services</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .background-pattern {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="1" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+      z-index: -1;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    .main-title { 
+      color: #fff; 
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      letter-spacing: -0.02em;
+    }
+
+    .title-icon { 
+      font-size: 1.2em; 
+      margin-right: 0.5rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .subtitle { 
+      color: rgba(255,255,255,0.9); 
+      font-size: 1.2rem; 
+      font-weight: 300;
+      margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #4CAF50, #2196F3);
+      border-radius: 1px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateX(-50px);
+      animation: slideInLeft 0.6s ease-out forwards;
+    }
+
+    .timeline-item:nth-child(1) { animation-delay: 0.1s; }
+    .timeline-item:nth-child(2) { animation-delay: 0.2s; }
+    .timeline-item:nth-child(3) { animation-delay: 0.3s; }
+    .timeline-item:nth-child(4) { animation-delay: 0.4s; }
+    .timeline-item:nth-child(5) { animation-delay: 0.5s; }
+
+    .timeline-marker {
+      position: absolute;
+      left: -28px;
+      top: 1rem;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4CAF50, #2196F3);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+      z-index: 2;
+      transition: transform 0.3s ease;
+    }
+
+    .timeline-item:hover .timeline-marker {
+      transform: scale(1.2);
+    }
+
+    .section-card { 
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px; 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      padding: 2rem; 
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .section-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .section-title { 
+      color: #2c3e50; 
+      font-size: 1.4rem; 
+      font-weight: 600;
+      flex: 1;
+      margin-left: 1rem;
+    }
+
+    .badge { 
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff; 
+      border-radius: 20px; 
+      padding: 0.5rem 1rem; 
+      font-size: 0.8rem; 
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .badge:hover {
+      transform: scale(1.05);
+    }
+
+    .expand-icon {
+      margin-left: auto;
+      font-size: 1.2rem;
+      color: #666;
+      transition: transform 0.3s ease;
+    }
+
+    .section-card.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .section-content {
+      max-height: 200px;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .section-card.expanded .section-content {
+      max-height: 1000px;
+    }
+
+    .feature-list { 
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      padding: 0.8rem;
+      background: #f8f9ff;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+      transition: all 0.3s ease;
+      transform: translateX(0);
+    }
+
+    .feature-item:hover {
+      background: #e8edff;
+      transform: translateX(10px);
+    }
+
+    .feature-icon {
+      color: #667eea;
+      font-size: 1.2rem;
+      margin-right: 0.8rem;
+      margin-top: 0.1rem;
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      color: #444;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .highlight { 
+      background: linear-gradient(135deg, #e8f5e8, #f0f8ff);
+      border: none;
+      border-radius: 16px; 
+      padding: 1.5rem; 
+      margin: 1.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .highlight::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #4CAF50, #2196F3);
+    }
+
+    .highlight-title {
+      font-weight: 600;
+      color: #2d5a3d;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .highlight-title::before {
+      content: '💡';
+      margin-right: 0.5rem;
+    }
+
+    pre { 
+      background: #1a1a1a;
+      color: #e8e8e8;
+      padding: 1.5rem; 
+      border-radius: 12px; 
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      border: 1px solid #333;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    code { 
+      background: #f1f3f8;
+      color: #e91e63;
+      padding: 0.2rem 0.5rem; 
+      border-radius: 6px; 
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .footer { 
+      text-align: center; 
+      color: rgba(255,255,255,0.8); 
+      margin-top: 4rem; 
+      padding: 2rem;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .tech-item {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: transform 0.2s ease;
+    }
+
+    .tech-item:hover {
+      transform: scale(1.05);
+    }
+
+    .scroll-indicator {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(255,255,255,0.2);
+      z-index: 1000;
+    }
+
+    .scroll-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #2196F3);
+      width: 0%;
+      transition: width 0.1s ease;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @media (max-width: 768px) { 
+      .container { padding: 1rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .timeline { padding-left: 1rem; }
+      .timeline::before { left: 10px; }
+      .timeline-marker { left: -18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-pattern"></div>
+  <div class="scroll-indicator">
+    <div class="scroll-progress" id="scrollProgress"></div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1 class="main-title">
+        <span class="title-icon">📊</span>
+        WebToq Chat Services
+      </h1>
+      <div class="subtitle">Dashboard interactivo de cambios y mejoras</div>
+      <div class="subtitle" style="font-size: 1rem; opacity: 0.7;">Semana del 26 de septiembre de 2025</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card" onclick="highlightSection('backend')">
+        <div class="stat-number">5</div>
+        <div class="stat-label">Mejoras Implementadas</div>
+      </div>
+      <div class="stat-card" onclick="highlightSection('api')">
+        <div class="stat-number">2</div>
+        <div class="stat-label">Nuevos Endpoints</div>
+      </div>
+      <div class="stat-card" onclick="highlightSection('events')">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Evento Nuevo</div>
+      </div>
+      <div class="stat-card" onclick="showTechStack()">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">TypeScript</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="section-card" onclick="toggleSection(this)" id="backend">
+          <div class="section-header">
+            <span class="badge">Backend</span>
+            <h2 class="section-title">Almacenamiento WebSocket en Valkey/Redis</h2>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="section-content">
+            <ul class="feature-list">
+              <li class="feature-item">
+                <span class="feature-icon">🗄️</span>
+                <span class="feature-text">Mensajes almacenados bajo la clave <code>webtoq:&lt;tenant&gt;:chat:&lt;sessionId&gt;</code> en Valkey/Redis</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">📝</span>
+                <span class="feature-text">Objeto <code>messages</code> por sesión, cada mensaje con todos sus campos originales</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">⏰</span>
+                <span class="feature-text">Campos <code>createdAt</code> y <code>updatedAt</code> agregados automáticamente</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <span class="feature-text">Ventajas: acceso rápido, persistencia temporal, consultas eficientes</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="section-card" onclick="toggleSection(this)" id="api">
+          <div class="section-header">
+            <span class="badge">API</span>
+            <h2 class="section-title">Servicios de consulta y búsqueda paginada</h2>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="section-content">
+            <ul class="feature-list">
+              <li class="feature-item">
+                <span class="feature-icon">🔍</span>
+                <span class="feature-text"><b>Consulta:</b> <code>GET /messages/{tenantSlug}/{conversationId}</code> retorna mensajes paginados y agrupados por ID</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">🔎</span>
+                <span class="feature-text"><b>Búsqueda:</b> <code>GET /messages/search</code> permite buscar mensajes por contenido, usuario, tipo, fecha, etc.</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">📄</span>
+                <span class="feature-text">Paginación en backend, formato JSON:API, agrupación por ID</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <span class="feature-text">Uso de <code>SCAN</code> en Redis para performance y compatibilidad</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">🔧</span>
+                <span class="feature-text">Filtro soporta contenido plano y anidado (<code>content.parts[0].value</code>)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="section-card" onclick="toggleSection(this)">
+          <div class="section-header">
+            <span class="badge">Validación</span>
+            <h2 class="section-title">Protocolo de mensajes y validación</h2>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="section-content">
+            <ul class="feature-list">
+              <li class="feature-item">
+                <span class="feature-icon">✅</span>
+                <span class="feature-text">Validación con <b>Zod</b> para todos los mensajes</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">🛡️</span>
+                <span class="feature-text">Esquema estricto: campos requeridos, UUID v4, timestamps UTC</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">🔄</span>
+                <span class="feature-text">Parser genérico para identificar y validar tipos de mensajes (chat, cart, payment, etc)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="section-card" onclick="toggleSection(this)" id="events">
+          <div class="section-header">
+            <span class="badge">Evento</span>
+            <h2 class="section-title">Typing por chat</h2>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="section-content">
+            <ul class="feature-list">
+              <li class="feature-item">
+                <span class="feature-icon">⌨️</span>
+                <span class="feature-text">Nuevo evento <code>chat:typing</code> en el protocolo</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <span class="feature-text">Notificación en tiempo real cuando un usuario está escribiendo</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">✅</span>
+                <span class="feature-text">Validación: campos base + <code>typing: boolean</code> en <code>data</code>, permite campos extra</span>
+              </li>
+            </ul>
+            <div class="highlight">
+              <div class="highlight-title">Ejemplo de payload:</div>
+              <pre>{
+  "action": "chat:typing",
+  "sessionId": "11111111-1111-4114-8111-111111111111",
+  "role": "agent",
+  "timestamp": "2025-09-26T18:00:00.000Z",
+  "tenant": "pointertop",
+  "data": { "typing": true }
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="section-card" onclick="toggleSection(this)">
+          <div class="section-header">
+            <span class="badge">General</span>
+            <h2 class="section-title">Funcionamiento de los servicios</h2>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="section-content">
+            <ul class="feature-list">
+              <li class="feature-item">
+                <span class="feature-icon">🔌</span>
+                <span class="feature-text">Clientes conectados por WebSocket usando protocolo validado</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">💾</span>
+                <span class="feature-text">Mensajes almacenados y consultados/buscados en tiempo real</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">🛍️</span>
+                <span class="feature-text">Soporte para chat, carrito, pagos y typing</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">🔧</span>
+                <span class="feature-text">Servicios desacoplados para consulta, búsqueda y validación</span>
+              </li>
+            </ul>
+            <div class="tech-stack">
+              <span class="tech-item">Node.js</span>
+              <span class="tech-item">TypeScript</span>
+              <span class="tech-item">Zod</span>
+              <span class="tech-item">Redis/Valkey</span>
+              <span class="tech-item">WebSocket</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div style="font-size: 1.1rem; margin-bottom: 0.5rem;">🚀 WebToq Chat Services Dashboard</div>
+      <div>Actualizado: 26 de septiembre de 2025</div>
+    </div>
+  </div>
+
+  <script>
+    // Scroll progress indicator
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.pageYOffset;
+      const docHeight = document.body.offsetHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+      document.getElementById('scrollProgress').style.width = scrollPercent + '%';
+    });
+
+    // Toggle section expansion
+    function toggleSection(element) {
+      element.classList.toggle('expanded');
+    }
+
+    // Highlight specific section
+    function highlightSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+        section.style.transform = 'scale(1.02)';
+        section.style.boxShadow = '0 20px 60px rgba(102, 126, 234, 0.3)';
+        setTimeout(() => {
+          section.style.transform = '';
+          section.style.boxShadow = '';
+        }, 1000);
+      }
+    }
+
+    // Show tech stack alert
+    function showTechStack() {
+      const techItems = ['Node.js', 'TypeScript', 'Zod', 'Redis/Valkey', 'WebSocket', 'JSON:API'];
+      alert('🔧 Tech Stack utilizado:\n\n' + techItems.join('\n• '));
+    }
+
+    // Add smooth hover effects to timeline markers
+    document.querySelectorAll('.timeline-marker').forEach((marker, index) => {
+      marker.addEventListener('mouseenter', () => {
+        marker.style.background = `linear-gradient(135deg, hsl(${index * 60}, 70%, 60%), hsl(${(index + 1) * 60}, 70%, 60%))`;
+      });
+      
+      marker.addEventListener('mouseleave', () => {
+        marker.style.background = 'linear-gradient(135deg, #4CAF50, #2196F3)';
+      });
+    });
+
+    // Intersection Observer for animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    // Auto-expand first section on load
+    setTimeout(() => {
+      const firstSection = document.querySelector('.timeline-item .section-card');
+      if (firstSection) {
+        firstSection.classList.add('expanded');
+      }
+    }, 1000);
+
+    // Add particle effect on click
+    document.addEventListener('click', (e) => {
+      createParticle(e.clientX, e.clientY);
+    });
+
+    function createParticle(x, y) {
+      const particle = document.createElement('div');
+      particle.style.cssText = `
+        position: fixed;
+        left: ${x}px;
+        top: ${y}px;
+        width: 6px;
+        height: 6px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        animation: particleFloat 0.8s ease-out forwards;
+      `;
+      
+      document.body.appendChild(particle);
+      
+      setTimeout(() => particle.remove(), 800);
+    }
+
+    // Add particle animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes particleFloat {
+        0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        100% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) scale(0); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
