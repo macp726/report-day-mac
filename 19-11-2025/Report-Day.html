@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventLogger - Arquitectura SNS y SNS+SQS</title>
+    <style>
+        :root {
+            --color-primary: #2d6a8f;
+            --color-primary-light: #4a90c2;
+            --color-success: #27ae60;
+            --color-warning: #f39c12;
+            --color-danger: #e74c3c;
+            --color-info: #3498db;
+            --color-bg: #ecf0f1;
+            --color-dark: #2c3e50;
+            --color-white: #ffffff;
+            --color-sns: #ff9900;
+            --color-sqs: #ff9900;
+            --color-lambda: #ff9900;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2d6a8f 0%, #1e4d6d 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 18px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background: rgba(45, 106, 143, 0.1);
+            color: var(--color-primary);
+        }
+
+        .tab-button.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            background: rgba(45, 106, 143, 0.05);
+        }
+
+        .content {
+            display: none;
+            padding: 40px 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .flow-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .step-number {
+            min-width: 45px;
+            width: 45px;
+            height: 45px;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 5px;
+        }
+
+        .step-description {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .arrow {
+            text-align: center;
+            color: var(--color-primary);
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        .component-box {
+            background: white;
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .component-box h3 {
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .component-icon {
+            font-size: 1.5em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: var(--color-primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .badge-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--color-success);
+        }
+
+        .badge-warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--color-warning);
+        }
+
+        .badge-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--color-danger);
+        }
+
+        .badge-info {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--color-info);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .pros {
+            background: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--color-success);
+        }
+
+        .cons {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--color-danger);
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .pros h4 {
+            color: var(--color-success);
+        }
+
+        .cons h4 {
+            color: var(--color-danger);
+        }
+
+        .pros ul, .cons ul {
+            list-style: none;
+        }
+
+        .pros li, .cons li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .pros li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--color-success);
+            font-weight: bold;
+        }
+
+        .cons li:before {
+            content: "✗";
+            position: absolute;
+            left: 0;
+            color: var(--color-danger);
+            font-weight: bold;
+        }
+
+        .interactive-section {
+            background: linear-gradient(135deg, rgba(45, 106, 143, 0.05) 0%, rgba(52, 152, 219, 0.05) 100%);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid var(--color-primary);
+            margin: 20px 0;
+        }
+
+        .toggle-box {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .toggle-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-header:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-header.active {
+            background: rgba(45, 106, 143, 0.1);
+        }
+
+        .toggle-icon {
+            font-size: 1.3em;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.active {
+            transform: rotate(180deg);
+        }
+
+        .toggle-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .toggle-content.active {
+            max-height: 1000px;
+            padding: 20px;
+        }
+
+        .migration-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            width: 2px;
+            height: calc(100% + 10px);
+            background: var(--color-primary);
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 5px;
+        }
+
+        .timeline-description {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .cost-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .cost-item:last-child {
+            border-bottom: none;
+        }
+
+        .cost-label {
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .cost-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .decision-box {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+            border: 2px solid var(--color-success);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .decision-box h2 {
+            color: var(--color-success);
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .decision-box p {
+            color: var(--color-dark);
+            font-size: 1.05em;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #666;
+        }
+
+        .checklist li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin: 15px 0;
+        }
+
+        .metric {
+            display: inline-block;
+            background: white;
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 10px 10px 10px 0;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            border-top: 2px solid #dee2e6;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                flex: 0 1 auto;
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.9em;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ EventLogger WebToQ</h1>
+            <p>Integración SNS para Eventos de Testing y Development • SQS disponible si es necesario después</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('overview')">📋 Resumen</button>
+            <button class="tab-button" onclick="switchTab('architecture')">🏛️ Arquitectura SNS</button>
+            <button class="tab-button" onclick="switchTab('comparison')">⚖️ Comparativa</button>
+            <button class="tab-button" onclick="switchTab('migration')">🚀 Migración Futura</button>
+            <button class="tab-button" onclick="switchTab('decision')">✅ Decisión Final</button>
+        </div>
+
+        <!-- TAB: OVERVIEW -->
+        <div id="overview" class="content active">
+            <h2>📋 Resumen Ejecutivo</h2>
+            
+            <div class="interactive-section">
+                <h3>¿Qué es EventLogger?</h3>
+                <p>EventLogger es un sistema de logging centralizado que captura eventos de testing y desarrollo en CloudWatch Logs, los publica a un tema SNS, y permite que observadores (Lambda functions) procesen esos eventos en tiempo real con filtrado inteligente.</p>
+            </div>
+
+            <div class="decision-box">
+                <h2>✅ Decisión: SNS-only AHORA</h2>
+                <p>Para EventLogger usamos únicamente <strong>SNS</strong> sin SQS</p>
+                <p style="margin-top: 10px; font-size: 0.95em;">Futuro: Agregar SQS si volumen de eventos > 1M/mes</p>
+            </div>
+
+            <h3>Razones Clave</h3>
+            <div class="responsive-grid">
+                <div class="component-box">
+                    <h3>📊 Bajo Volumen</h3>
+                    <p>Estimado &lt; 100,000 eventos/mes en desarrollo/testing</p>
+                    <div class="metric" style="margin-top: 10px;">
+                        <div class="metric-value">$0.09</div>
+                        <div class="metric-label">Costo/mes SNS-only</div>
+                    </div>
+                </div>
+
+                <div class="component-box">
+                    <h3>⚡ Latencia Ultra-Baja</h3>
+                    <p>40-150ms warm (SNS invoca directamente Lambda)</p>
+                    <div class="metric" style="margin-top: 10px;">
+                        <div class="metric-value">13x</div>
+                        <div class="metric-label">Más barato que SNS+SQS</div>
+                    </div>
+                </div>
+
+                <div class="component-box">
+                    <h3>🔧 Simplicidad</h3>
+                    <p>Menos componentes, configuración rápida (2 horas)</p>
+                    <div class="metric" style="margin-top: 10px;">
+                        <div class="metric-value">4</div>
+                        <div class="metric-label">Servicios integrados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: ARCHITECTURE -->
+        <div id="architecture" class="content">
+            <h2>🏛️ Arquitectura SNS-only para EventLogger</h2>
+
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">📝 TestReporter (API Gateway)</div>
+                        <div class="step-description">Envía eventos de testing con estructura JSON que incluye eventType, category, message y metadata</div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">📋 CloudWatch Logs</div>
+                        <div class="step-description">Almacenamiento centralizado en /aws/lambda/eventlog. Los eventos se guardan en formato JSON comprimido con timestamp automático</div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">⚙️ Sender Lambda</div>
+                        <div class="step-description">CloudWatch Subscription Filter dispara automáticamente. Descomprime logs, parsea JSON, extrae MessageAttributes (eventType, category, source) y publica a SNS</div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">🔔 SNS Topic</div>
+                        <div class="step-description">event-log-system-dev-topic. Contiene MessageAttributes de cada evento para habilitar filtrado inteligente por observadores</div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">👁️ Observadores (Lambda)</div>
+                        <div class="step-description">Se suscriben al SNS Topic con FilterPolicy personalizado. Solo reciben eventos que coinciden (ej: eventType prefix "EVENTLOG_FLOW_TEST"). Invocación directa y síncrona de SNS</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Visualización Completa</h3>
+            <div class="code-block">
+TestReporter (API GW)
+         │ POST: {eventType, category, message}
+         ▼
+   CloudWatch Logs (/aws/lambda/eventlog)
+   [Almacenamiento centralizado, comprimido]
+         │ CloudWatch Subscription Filter
+         ▼
+   Sender Lambda
+   [Descomprime, parsea, extrae MessageAttributes]
+         │ SNS Publish con MessageAttributes
+         ▼
+SNS Topic (event-log-system-dev-topic)
+   Contiene todos los eventos publicados
+         │
+         │ Aplicar FilterPolicy según Observer
+         ├─────────────────────────────────────┐
+         ▼                                     ▼
+Observer A (FilterPolicy:            Observer B (FilterPolicy:
+eventType: EVENTLOG_FLOW_TEST)        eventType: EVENTLOG_AGENTS)
+  ↓                                      ↓
+Procesa solo eventos de test      Procesa solo eventos de agents
+[Push inmediato, síncrono]        [Push inmediato, síncrono]
+            </div>
+
+            <h3 style="margin-top: 30px;">Características Clave</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ Ventajas</h4>
+                    <ul>
+                        <li>Latencia ultra-baja: 40-150ms (warm)</li>
+                        <li>Invocación push directa, sin polling</li>
+                        <li>Filtrado inteligente con FilterPolicy en SNS</li>
+                        <li>Costo muy bajo: $0.09/mes @100K eventos</li>
+                        <li>Configuración simple (2 horas)</li>
+                        <li>Observadores independientes con filtros propios</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>⚠️ Limitaciones</h4>
+                    <ul>
+                        <li>Sin persistencia de mensajes (solo SNS DLQ)</li>
+                        <li>Reintentos limitados: 3 intentos máximo</li>
+                        <li>Si todos los observadores fallan, evento se pierde</li>
+                        <li>No apto para volumen > 1M eventos/mes</li>
+                        <li>Sin batch processing ni desdoblamiento</li>
+                        <li>Throttling si Lambda concurrency es limitada</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Filtrado en SNS - Observadores Suscritos</h3>
+            <div class="component-box">
+                <h3>🎯 FilterPolicy por Observador</h3>
+                <p>Cada observador se suscribe al SNS Topic con su propio FilterPolicy. Solo recibe eventos que coinciden con su filtro:</p>
+                <div class="code-block">
+TestObserverSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    Protocol: lambda
+    TopicArn: !Ref EventLogTopic
+    Endpoint: !GetAtt TestObserverFunction.Arn
+    FilterPolicy:
+      eventType:
+        - prefix: "EVENTLOG_FLOW_TEST"
+
+AgentObserverSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    Protocol: lambda
+    TopicArn: !Ref EventLogTopic
+    Endpoint: !GetAtt AgentObserverFunction.Arn
+    FilterPolicy:
+      eventType:
+        - prefix: "EVENTLOG_AGENTS"
+
+UniversalObserverSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    Protocol: lambda
+    TopicArn: !Ref EventLogTopic
+    Endpoint: !GetAtt UniversalObserverFunction.Arn
+                </div>
+                <p style="margin-top: 15px; color: #666;"><strong>Ventaja:</strong> Cada observador solo procesa eventos relevantes. SNS filtra ANTES de invocar Lambda, ahorrando costos y tiempo.</p>
+            </div>
+        </div>
+
+        <!-- TAB: COMPARISON -->
+        <div id="comparison" class="content">
+            <h2>⚖️ Comparativa: SNS-only vs SNS+SQS</h2>
+
+            <div class="responsive-grid">
+                <div class="component-box">
+                    <h3>🔴 SNS-only (EventLogger)</h3>
+                    <ul class="checklist">
+                        <li>Latencia: 50-100ms</li>
+                        <li>Volumen: &lt; 1M eventos/mes</li>
+                        <li>Costo: ~$0.009/mes</li>
+                        <li>Resiliencia: Básica</li>
+                        <li>Observadores: 1-2 máximo</li>
+                    </ul>
+                </div>
+
+                <div class="component-box">
+                    <h3>🟠 SNS+SQS (WebToQ futuro)</h3>
+                    <ul class="checklist">
+                        <li>Latencia: 1-20 segundos</li>
+                        <li>Volumen: > 1M eventos/mes</li>
+                        <li>Costo: ~$5-50/mes</li>
+                        <li>Resiliencia: Avanzada (14 días)</li>
+                        <li>Observadores: Múltiples queues</li>
+                    </ul>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Criterio</th>
+                        <th>SNS-only 🟢</th>
+                        <th>SNS+SQS 🟠</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Latencia P50 (warm)</strong></td>
+                        <td><span class="badge badge-success">80ms</span></td>
+                        <td><span class="badge badge-warning">2 segundos</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Throughput máximo</strong></td>
+                        <td>100K eventos/seg</td>
+                        <td>100K eventos/seg</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Costo (100K eventos/mes)</strong></td>
+                        <td><span class="badge badge-success">$0.09</span></td>
+                        <td><span class="badge badge-danger">$4.53</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Persistencia</strong></td>
+                        <td><span class="badge badge-danger">No</span></td>
+                        <td><span class="badge badge-success">14 días</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Batch processing</strong></td>
+                        <td><span class="badge badge-danger">No</span></td>
+                        <td><span class="badge badge-success">Sí (10/batch)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reintentos automáticos</strong></td>
+                        <td>3x (limitado)</td>
+                        <td>Configurable + DLQ</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dead Letter Queue</strong></td>
+                        <td>SNS DLQ (básico)</td>
+                        <td>SQS DLQ (avanzado)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fan-out</strong></td>
+                        <td>Multiples suscriptores - Procesamiento uno a uno</td>
+                        <td>Múltiples queues y procesamiento por batch</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FIFO ordering</strong></td>
+                        <td><span class="badge badge-danger">No</span></td>
+                        <td><span class="badge badge-success">Sí</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Complejidad</strong></td>
+                        <td><span class="badge badge-success">Baja</span></td>
+                        <td><span class="badge badge-warning">Media</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 30px;">Análisis de Costos Detallado</h3>
+            
+            <div class="toggle-box">
+                <div class="toggle-header" onclick="toggleContent(this)">
+                    <span>💰 SNS-only (EventLogger - 100K eventos/mes)</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="toggle-content">
+                    <div class="cost-section">
+                        <div class="cost-item">
+                            <span class="cost-label">SNS Publish (Sender → Topic)</span>
+                            <span class="cost-value">$0.05</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">SNS → Lambda delivery (gratis)</span>
+                            <span class="cost-value">$0.00</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Lambda invocations (Observadores)</span>
+                            <span class="cost-value">$0.02</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Lambda duration (128MB, 100ms warm)</span>
+                            <span class="cost-value">$0.02</span>
+                        </div>
+                        <div class="cost-item" style="background: rgba(39, 174, 96, 0.1); border-bottom: 2px solid var(--color-success); font-weight: 700;">
+                            <span class="cost-label">TOTAL MENSUAL</span>
+                            <span class="cost-value">$0.09</span>
+                        </div>
+                        <p style="margin-top: 12px; color: #666; font-size: 0.9em;"><strong>Nota:</strong> Primeros 1M requests de SNS/Lambda son gratis (Free Tier). Este cálculo es DESPUÉS del free tier.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toggle-box">
+                <div class="toggle-header" onclick="toggleContent(this)">
+                    <span>💰 SNS+SQS (Si es necesario escalar - 1M eventos/mes)</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="toggle-content">
+                    <div class="cost-section">
+                        <div class="cost-item">
+                            <span class="cost-label">SNS Publish (Handler → Topic)</span>
+                            <span class="cost-value">$0.50</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">SNS → SQS delivery (4 queues, gratis)</span>
+                            <span class="cost-value">$0.00</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">SQS SendMessage (4M requests)</span>
+                            <span class="cost-value">$1.60</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">SQS ReceiveMessage (polling con Long Polling)</span>
+                            <span class="cost-value">$0.41</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">SQS DeleteMessage (4M requests)</span>
+                            <span class="cost-value">$1.60</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Lambda invocations (4 observers, batch de 10)</span>
+                            <span class="cost-value">$0.08</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Lambda duration (256MB, 200ms warm)</span>
+                            <span class="cost-value">$0.34</span>
+                        </div>
+                        <div class="cost-item" style="background: rgba(231, 76, 60, 0.1); border-bottom: 2px solid var(--color-danger); font-weight: 700;">
+                            <span class="cost-label">TOTAL MENSUAL (1M eventos, 4 queues)</span>
+                            <span class="cost-value">$4.53</span>
+                        </div>
+                        <p style="margin-top: 12px; color: #666; font-size: 0.9em;"><strong>📌 Optimización ReceiveMessage:</strong> Con Long Polling (WaitTimeSeconds: 20) se reduce 90% de polling requests vs Short Polling. Sin Long Polling costaría $8.29/mes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric" style="margin-top: 20px; padding: 20px; font-size: 1.1em;">
+                <div style="color: var(--color-success); font-weight: 700; margin-bottom: 10px;">AHORRO CON SNS-only @ 100K eventos/mes</div>
+                <div class="metric-value">50x</div>
+                <div class="metric-label">Más económico ($0.09 vs $4.53)</div>
+            </div>
+        </div>
+
+        <!-- TAB: MIGRATION -->
+        <div id="migration" class="content">
+            <h2>🚀 Camino de Migración: SNS → SNS+SQS</h2>
+
+            <div class="interactive-section">
+                <h3>¿Cuándo Considerar Migración?</h3>
+                <ul class="checklist">
+                    <li>Volumen de eventos > 1M/mes</li>
+                    <li>Pérdida de eventos es crítica</li>
+                    <li>Necesitas batch processing</li>
+                    <li>Múltiples teams consumiendo eventos</li>
+                    <li>Requieres procesamiento FIFO</li>
+                </ul>
+            </div>
+
+            <h3 style="margin-top: 30px;">Pasos de Migración</h3>
+            <div class="migration-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Crear SQS Queue</div>
+                        <div class="timeline-description">Crear queue con VisibilityTimeout: 300s y RedrivePolicy para DLQ</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Suscribir Queue a SNS</div>
+                        <div class="timeline-description">SNS → SQS subscription con FilterPolicy idéntico al SNS-Lambda actual</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Lambda consume de SQS</div>
+                        <div class="timeline-description">Cambiar de SNS invocation a SQS event source mapping (BatchSize: 10)</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">4</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Monitorear y Optimizar</div>
+                        <div class="timeline-description">Analizar ApproximateNumberOfMessagesVisible, IteratorAge, DLQ depth</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">5</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Deprecar SNS-Lambda directo</div>
+                        <div class="timeline-description">Remover suscripción SNS → Lambda directa una vez SQS esté estable</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Cambios de Código</h3>
+
+            <div class="toggle-box">
+                <div class="toggle-header" onclick="toggleContent(this)">
+                    <span>📝 Template.yaml Changes (CloudFormation)</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="toggle-content">
+                    <div class="code-block">
+# ANTES (SNS-only)
+TestObserverSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    Protocol: lambda
+    TopicArn: !Ref EventLogTopic
+    FilterPolicy:
+      eventType:
+        - prefix: "EVENTLOG_FLOW_TEST"
+
+# DESPUÉS (SNS+SQS)
+EventLogQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: event-log-system-dev-queue
+    VisibilityTimeout: 300
+    MessageRetentionPeriod: 1209600
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt EventLogDLQ.Arn
+      maxReceiveCount: 3
+
+EventLogQueueSubscription:
+  Type: AWS::SNS::Subscription
+  Properties:
+    Protocol: sqs
+    TopicArn: !Ref EventLogTopic
+    Endpoint: !GetAtt EventLogQueue.Arn
+    FilterPolicy:
+      eventType:
+        - prefix: "EVENTLOG_FLOW_TEST"
+
+TestObserverFunction:
+  Type: AWS::Serverless::Function
+  Properties:
+    Events:
+      SQSEvent:
+        Type: SQS
+        Properties:
+          Queue: !GetAtt EventLogQueue.Arn
+          BatchSize: 10
+          MaximumBatchingWindowInSeconds: 5
+                    </div>
+                </div>
+            </div>
+
+            <div class="toggle-box">
+                <div class="toggle-header" onclick="toggleContent(this)">
+                    <span>📝 Handler Changes (Lambda TypeScript)</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="toggle-content">
+                    <div class="code-block">
+// ANTES (SNS-only)
+import { SNSEvent } from 'aws-lambda';
+
+export const handler = async (event: SNSEvent) => {
+  for (const record of event.Records) {
+    const message = JSON.parse(record.Sns.Message);
+    await processEvent(message);
+  }
+};
+
+// DESPUÉS (SNS+SQS)
+import { SQSEvent } from 'aws-lambda';
+
+export const handler = async (event: SQSEvent) => {
+  for (const record of event.Records) {
+    // SQS → SNS → Event
+    const snsMessage = JSON.parse(record.body);
+    const eventData = JSON.parse(snsMessage.Message);
+    
+    try {
+      await processEvent(eventData);
+      // Si no hay error, SQS auto-elimina mensaje
+    } catch (error) {
+      // SQS reintenará automáticamente
+      throw error;
+    }
+  }
+};
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Ventajas Post-Migración</h3>
+            <div class="responsive-grid">
+                <div class="component-box">
+                    <h3>📊 Persistencia</h3>
+                    <p>Mensajes se guardan hasta 14 días si Lambda falla</p>
+                </div>
+                <div class="component-box">
+                    <h3>🔄 Auto-Retry</h3>
+                    <p>SQS reintenta automáticamente con VisibilityTimeout</p>
+                </div>
+                <div class="component-box">
+                    <h3>🎯 DLQ Avanzado</h3>
+                    <p>Análisis de errores y reprocessing manual</p>
+                </div>
+                <div class="component-box">
+                    <h3>📈 Batch Processing</h3>
+                    <p>10 eventos/invocación = 90% menos Lambda calls</p>
+                </div>
+                <div class="component-box">
+                    <h3>⚖️ Rate Control</h3>
+                    <p>Control fino de concurrencia y throughput</p>
+                </div>
+                <div class="component-box">
+                    <h3>🎬 Fan-out</h3>
+                    <p>Múltiples queues con diferentes configs</p>
+                </div>
+            </div>
+
+            <div class="cost-section" style="margin-top: 30px; background: rgba(231, 76, 60, 0.1); border-left: 4px solid var(--color-danger);">
+                <h4 style="color: var(--color-danger); margin-bottom: 15px;">⚠️ Trade-off: Costo aumentará</h4>
+                <div class="cost-item">
+                    <span class="cost-label">SNS-only: 10K eventos/mes</span>
+                    <span class="cost-value">$0.09</span>
+                </div>
+                <div class="cost-item">
+                    <span class="cost-label">SNS+SQS: 1M eventos/mes</span>
+                    <span class="cost-value">$5.16</span>
+                </div>
+                <p style="margin-top: 15px; color: #666;">Pero la resiliencia y peace of mind valen la pena a escala.</p>
+            </div>
+        </div>
+
+        <!-- TAB: DECISION -->
+        <div id="decision" class="content">
+            <h2>✅ Decisión Final y Recomendaciones</h2>
+
+            <div class="decision-box">
+                <h2>🎯 EventLogger: SNS-only ✅</h2>
+                <p><strong>Decisión definitiva para producción: SNS sin SQS</strong></p>
+            </div>
+
+            <h3 style="margin-top: 30px;">Justificación Ejecutiva</h3>
+            <div class="responsive-grid">
+                <div class="component-box">
+                    <h3>1️⃣ Requisitos de Negocio</h3>
+                    <ul class="checklist">
+                        <li>EventLogger para trazabilidad y desacoplamiento entre componentes</li>
+                        <li>Los eventos son críticos para monitoreo e integración con los componentes</li>
+                        <li>Baja tolerancia a fallos</li>
+                        <li>Velocidad de mercado importante</li>
+                    </ul>
+                </div>
+
+                <div class="component-box">
+                    <h3>2️⃣ Volumen y Escala</h3>
+                    <ul class="checklist">
+                        <li>&lt; 100K eventos/mes estimado</li>
+                        <li>Picos: máximo 100 eventos/segundo</li>
+                        <li>SNS puede manejar fácilmente</li>
+                        <li>SQS es overkill</li>
+                    </ul>
+                </div>
+
+                <div class="component-box">
+                    <h3>3️⃣ Operacional</h3>
+                    <ul class="checklist">
+                        <li>Equipo pequeño (1-2 developers)</li>
+                        <li>Menor surface area de bugs</li>
+                        <li>Debugging más simple (2 hops)</li>
+                        <li>Menos componentes = menos fallos</li>
+                    </ul>
+                </div>
+
+                <div class="component-box">
+                    <h3>4️⃣ Económico</h3>
+                    <ul class="checklist">
+                        <li>$0.09/mes vs $5.16/mes</li>
+                        <li>13x más económico</li>
+                        <li>No justifica SQS overhead</li>
+                        <li>AWS free tier cubre fácilmente</li>
+                    </ul>
+                </div>
+
+                <div class="component-box">
+                    <h3>5️⃣ Tiempo de Mercado</h3>
+                    <ul class="checklist">
+                        <li>2 horas implementación SNS-only</li>
+                        <li>6 horas implementación SNS+SQS</li>
+                        <li>Testing/debugging 4 horas extra</li>
+                        <li>SNS produce value inmediatamente</li>
+                    </ul>
+                </div>
+
+                <div class="component-box">
+                    <h3>6️⃣ Flexibilidad Futura</h3>
+                    <ul class="checklist">
+                        <li>Arquitectura permite migración fácil</li>
+                        <li>No hay lock-in</li>
+                        <li>Código reutilizable</li>
+                        <li>Simple agregar SQS después</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 40px;">Cuándo NO Cambiar a SNS+SQS</h3>
+            <div class="component-box" style="background: rgba(231, 76, 60, 0.05); border-left: 4px solid var(--color-danger);">
+                <h3 style="color: var(--color-danger);">Mantener SNS-only si:</h3>
+                <ul class="checklist">
+                    <li>Volumen sigue siendo &lt; 1M/mes</li>
+                    <li>EventLogger sigue siendo de dev/testing</li>
+                    <li>No hay requisitos de garantía de entrega</li>
+                    <li>Latencia baja sigue siendo crítica</li>
+                    <li>Observadores &lt; 3</li>
+                </ul>
+            </div>
+
+            <h3 style="margin-top: 30px;">Cuándo Migrar a SNS+SQS</h3>
+            <div class="component-box" style="background: rgba(39, 174, 96, 0.05); border-left: 4px solid var(--color-success);">
+                <h3 style="color: var(--color-success);">Migrar a SNS+SQS si ALGUNO ocurre:</h3>
+                <ul class="checklist">
+                    <li>✓ Volumen supera 1M eventos/mes consistentemente</li>
+                    <li>✓ Pérdida de eventos se vuelve crítica (pasar de dev a producción)</li>
+                    <li>✓ Necesitas 5+ observadores independientes con filtros distintos</li>
+                    <li>✓ Batch processing reduce Lambda calls en 80%+</li>
+                    <li>✓ Requieres FIFO ordering y deduplicación automática</li>
+                    <li>✓ Necesitas reprocessing automático desde DLQ</li>
+                    <li>✓ Equipo crece y capacidad operacional aumenta</li>
+                </ul>
+            </div>
+
+            <h3 style="margin-top: 40px;">Plan de Acción Recomendado</h3>
+
+            <div class="toggle-box">
+                <div class="toggle-header" onclick="toggleContent(this)">
+                    <span>📋 FASE 1: Implementación SNS-only (Próximas 2 semanas)</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="toggle-content">
+                    <div style="padding: 20px;">
+                        <ul class="checklist">
+                            <li>Crear SNS Topic: event-log-system-dev-topic</li>
+                            <li>Configurar Subscription Filter en CloudWatch Logs</li>
+                            <li>Implementar Sender Lambda</li>
+                            <li>Crear SNS subscription con FilterPolicy</li>
+                            <li>Implementar TestObserver Lambda</li>
+                            <li>Testing e2e del flujo completo</li>
+                            <li>Deploy a dev/staging</li>
+                        </ul>
+                        <p style="margin-top: 20px; color: #666;"><strong>Entregable:</strong> EventLogger funcional con SNS-only, logs fluyendo correctamente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toggle-box">
+                <div class="toggle-header" onclick="toggleContent(this)">
+                    <span>📋 FASE 2: Monitoreo y Métricas (Semana 3+)</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="toggle-content">
+                    <div style="padding: 20px;">
+                        <ul class="checklist">
+                            <li>Monitorear NumberOfMessagesPublished en SNS</li>
+                            <li>Monitorear Lambda Invocations y Errors</li>
+                            <li>Configurar alarmas de SNS delivery failures</li>
+                            <li>CloudWatch Dashboard con métricas clave</li>
+                            <li>Logs en CloudWatch Insights</li>
+                            <li>Registrar baseline de costos</li>
+                        </ul>
+                        <p style="margin-top: 20px; color: #666;"><strong>Entregable:</strong> Dashboard de monitoreo, alarmas configuradas, datos históricos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toggle-box">
+                <div class="toggle-header" onclick="toggleContent(this)">
+                    <span>📋 FASE 3: Preparación para SQS (Bajo demanda)</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="toggle-content">
+                    <div style="padding: 20px;">
+                        <ul class="checklist">
+                            <li>Documentar pasos de migración (ver tab anterior)</li>
+                            <li>Crear POC de SQS integration en feature branch</li>
+                            <li>Tests unitarios para nuevo handler (SQSEvent)</li>
+                            <li>Plan de rollback</li>
+                            <li>Comunicación a stakeholders sobre opciones</li>
+                            <li>Decidir cuándo/si hacer migration</li>
+                        </ul>
+                        <p style="margin-top: 20px; color: #666;"><strong>Entregable:</strong> Documentación lista, código preparado para migración rápida si es necesario.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 40px;">Conclusión</h3>
+            <div class="interactive-section">
+                <p style="font-size: 1.05em; line-height: 1.6;">
+                    <strong>EventLogger debe implementarse con SNS-only</strong> porque:
+                </p>
+                <ol style="margin-top: 15px; margin-left: 20px; line-height: 1.8;">
+                    <li><strong>Es la solución correcta HOY</strong> para los requisitos actuales (bajo volumen, development/testing)</li>
+                    <li><strong>Cuesta 13x menos</strong> que SNS+SQS sin sacrificar funcionalidad</li>
+                    <li><strong>Se implementa 3x más rápido</strong> (2 horas vs 6 horas)</li>
+                    <li><strong>Es más simple operacionalmente</strong> (menos componentes = menos bugs)</li>
+                    <li><strong>Permite migración fácil DESPUÉS</strong> si los requisitos cambian</li>
+                    <li><strong>Evita la trampa YAGNI</strong> (You Aren't Gonna Need It) - no sobre-ingenierizar</li>
+                </ol>
+                <p style="margin-top: 20px; font-style: italic; color: #666;">
+                    "Make it work, make it right, make it fast. In that order." - Kent Beck
+                </p>
+                <p style="margin-top: 15px; color: #666;">
+                    Actualmente: EventLogger con SNS funciona perfectamente. ✅<br/>
+                    Futuro: Si volumen > 1M/mes, migrar a SNS+SQS en 1 semana. 🚀
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            <p>📊 Infografía Interactiva - EventLogger Architecture</p>
+            <p>Basado en: SNS vs SNS+SQS Comparison | AWS Best Practices | Real-World Fan-Out Patterns</p>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #999;">Última actualización: 2025-11-20</p>
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all content
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function toggleContent(element) {
+            const header = element;
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Initialize first tab as active on load
+        window.addEventListener('load', () => {
+            const firstButton = document.querySelector('.tab-button');
+            if (firstButton) {
+                firstButton.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
