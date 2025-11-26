@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebToQ - Arquitectura de Sesiones</title>
+    <style>
+        :root {
+            --color-primary: #208EC0;
+            --color-success: #2BA870;
+            --color-warning: #E89635;
+            --color-error: #C01A2F;
+            --color-info: #6B6B7D;
+            --color-bg: #F8F9FA;
+            --color-surface: #FFFFFF;
+            --color-border: #E0E0E0;
+            --color-text: #1F2121;
+            --color-text-light: #626C7C;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --radius: 8px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #1A6FA0 100%);
+            color: white;
+            padding: var(--spacing-xl);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: var(--spacing-md);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--color-border);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: none;
+            border: none;
+            color: var(--color-text-light);
+            font-size: 1em;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover {
+            color: var(--color-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: var(--spacing-lg);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .icon-badge {
+            display: inline-flex;
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .grid {
+            display: grid;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-5 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .card-icon {
+            font-size: 1.8em;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .card-content {
+            font-size: 0.95em;
+            color: var(--color-text-light);
+            line-height: 1.8;
+        }
+
+        .state-box {
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+            border-left: 4px solid;
+        }
+
+        .state-created {
+            background: #FFF3E0;
+            border-left-color: var(--color-warning);
+        }
+
+        .state-waiting {
+            background: #E3F2FD;
+            border-left-color: var(--color-primary);
+        }
+
+        .state-attended {
+            background: #E8F5E9;
+            border-left-color: var(--color-success);
+        }
+
+        .state-disconnected {
+            background: #FCE4EC;
+            border-left-color: var(--color-error);
+        }
+
+        .state-ended {
+            background: #ECEFF1;
+            border-left-color: var(--color-info);
+        }
+
+        .state-label {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .timeline {
+            position: relative;
+            padding: var(--spacing-lg) 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--color-border);
+        }
+
+        .timeline-item {
+            margin-bottom: var(--spacing-lg);
+            padding-left: 60px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 5px;
+            width: 25px;
+            height: 25px;
+            background: var(--color-primary);
+            border: 3px solid white;
+            border-radius: 50%;
+        }
+
+        .timeline-item-content {
+            background: var(--color-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            border: 1px solid var(--color-border);
+        }
+
+        .timeline-item-time {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 0.9em;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .timeline-item-text {
+            color: var(--color-text-light);
+        }
+
+        .data-model {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .data-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-key {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-break: break-word;
+        }
+
+        .data-value {
+            color: var(--color-text-light);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .comparison-table th {
+            background: var(--color-primary);
+            color: white;
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--color-bg);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #C8E6C9;
+            color: #1B5E20;
+        }
+
+        .badge-warning {
+            background: #FFE0B2;
+            color: #E65100;
+        }
+
+        .badge-error {
+            background: #FFCDD2;
+            color: #B71C1C;
+        }
+
+        .badge-info {
+            background: #BBDEFB;
+            color: #0D47A1;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            margin: var(--spacing-lg) 0;
+            padding: var(--spacing-lg);
+            background: var(--color-bg);
+            border-radius: var(--radius);
+        }
+
+        .flow-box {
+            flex: 1;
+            min-width: 120px;
+            background: var(--color-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            border: 2px solid var(--color-primary);
+            text-align: center;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .flow-arrow {
+            font-size: 1.5em;
+            color: var(--color-primary);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
+            border-left: 4px solid var(--color-primary);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .info-box-content {
+            color: var(--color-text-light);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs {
+                gap: var(--spacing-sm);
+            }
+
+            .nav-tab {
+                padding: var(--spacing-md) var(--spacing-sm);
+                font-size: 0.9em;
+            }
+
+            .data-row {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-lg {
+            margin-top: var(--spacing-lg);
+        }
+
+        .mb-lg {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .text-small {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+        }
+
+        .highlight {
+            background: #FFFACD;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎯 WebToQ Sessions</h1>
+        <p>Arquitectura de Gestión de Sesiones en Tiempo Real</p>
+    </header>
+
+    <div class="container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('lifecycle')">📊 Ciclo de Vida</button>
+            <button class="nav-tab" onclick="showTab('datamodel')">🗄️ Modelo de Datos</button>
+            <button class="nav-tab" onclick="showTab('attention')">👥 Flujo de Atención</button>
+            <button class="nav-tab" onclick="showTab('agentTimeout')">⏱️ Timeout de Agente</button>
+            <button class="nav-tab" onclick="showTab('clientReconn')">🔄 Reconexión Cliente</button>
+        </div>
+
+        <!-- TAB 1: Session Lifecycle -->
+        <div id="lifecycle" class="tab-content active">
+            <div class="section-title">
+                <span class="icon-badge">1</span>
+                Ciclo de Vida de Sesión
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">📌 Conceptos Clave</div>
+                <div class="info-box-content">
+                    Una sesión pasa por varios <strong>estados de ciclo de vida</strong> (CREATED, WAITING, ATTENDED, DISCONNECTED, ENDED) 
+                    independientes de sus <strong>estados de validez</strong> (ACTIVE, SUSPENDED, REVOKED, EXPIRED). 
+                    Esto permite controlar tanto la interacción como la seguridad.
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Estados de Ciclo de Vida</h3>
+            <div class="grid grid-5">
+                <div class="card">
+                    <div class="state-box state-created">
+                        <div class="state-label">🆕 CREATED</div>
+                        <div class="card-content">
+                            Sesión creada sin conexión WebSocket. Agente comparte link con cliente.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="state-box state-waiting">
+                        <div class="state-label">⏳ WAITING</div>
+                        <div class="card-content">
+                            Cliente conectado vía WebSocket, esperando que agente le atienda.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="state-box state-attended">
+                        <div class="state-label">✅ ATTENDED</div>
+                        <div class="card-content">
+                            Agente asignado y ambos conectados. Conversación activa.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="state-box state-disconnected">
+                        <div class="state-label">📴 DISCONNECTED</div>
+                        <div class="card-content">
+                            Cliente desconectado. <strong>Preserva agente asignado</strong> para reconectar.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="state-box state-ended">
+                        <div class="state-label">🏁 ENDED</div>
+                        <div class="card-content">
+                            Sesión finalizada explícitamente. Sin reconexión posible.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Estados de Validez (Seguridad)</h3>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🟢</span>
+                        <span class="card-title">ACTIVE</span>
+                    </div>
+                    <div class="card-content">
+                        Sesión válida, tokens activos, no expirada.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">⏸️</span>
+                        <span class="card-title">SUSPENDED</span>
+                    </div>
+                    <div class="card-content">
+                        Temporalmente suspendida por política o seguridad.
+                    </div>
+                    </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🚫</span>
+                        <span class="card-title">REVOKED</span>
+                    </div>
+                    <div class="card-content">
+                        Sesión revocada. Acceso completamente denegado.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">⏰</span>
+                        <span class="card-title">EXPIRED</span>
+                    </div>
+                    <div class="card-content">
+                        TTL expirado (24 horas). Valkey eliminó automáticamente.
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Transiciones Principales</h3>
+            <div class="flow-diagram">
+                <div class="flow-box">CREATED</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">WAITING</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">ATTENDED</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">ENDED</div>
+            </div>
+
+            <div class="card mt-lg">
+                <div class="card-header">
+                    <span class="card-icon">💡</span>
+                    <span class="card-title">Timeouts Configurados</span>
+                </div>
+                <div class="grid grid-2">
+                    <div>
+                        <strong>Cliente Timeout</strong><br/>
+                        <span class="text-small">24 horas (TTL de Valkey automático)</span>
+                    </div>
+                    <div>
+                        <strong>Agente Timeout</strong><br/>
+                        <span class="text-small">5 segundos (Grace Period + Lazy Cleanup)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Data Model -->
+        <div id="datamodel" class="tab-content">
+            <div class="section-title">
+                <span class="icon-badge">2</span>
+                Modelo de Datos en Valkey/Redis
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">🗂️ Estructuras de Almacenamiento</div>
+                <div class="info-box-content">
+                    Las sesiones se organizan en Valkey (Redis) con múltiples índices para búsqueda rápida 
+                    por estado, agente, conexiones y tokens temporales de grace period.
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Session Hash - Datos Principales</h3>
+            <div class="data-model">
+                <div class="data-row">
+                    <div class="data-key">Key:</div>
+                    <div class="data-value">webtoq:{tenant}:session:{sessionId}</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-key">Type:</div>
+                    <div class="data-value">Redis HASH</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-key">sessionId</div>
+                    <div class="data-value">Identificador único de sesión</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-key">userId</div>
+                    <div class="data-value">Usuario que creó la sesión</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-key">status</div>
+                    <div class="data-value">ACTIVE | SUSPENDED | REVOKED | EXPIRED</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-key">attendedBy</div>
+                    <div class="data-value"><span class="highlight">agentId</span> | undefined (Crucial para reconexión)</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-key">TTL</div>
+                    <div class="data-value">24 horas (Valkey automático)</div>
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Índices por Estado</h3>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🏷️</span>
+                        <span class="card-title">Status Indexes</span>
+                    </div>
+                    <div class="card-content">
+                        <strong>Patrón:</strong> <code style="color: var(--color-primary);">webtoq:{tenant}:status:{STATUS}</code><br/><br/>
+                        <strong>Tipos de SET:</strong><br/>
+                        • CREATED<br/>
+                        • WAITING<br/>
+                        • ATTENDED<br/>
+                        • DISCONNECTED<br/>
+                        • ENDED<br/><br/>
+                        Permiten búsquedas rápidas por estado.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">👤</span>
+                        <span class="card-title">Agent Attendance</span>
+                    </div>
+                    <div class="card-content">
+                        <strong>Patrón:</strong> <code style="color: var(--color-primary);">webtoq:agents:{tenant}:attending:{agentId}</code><br/><br/>
+                        <strong>Type:</strong> Redis HASH<br/>
+                        • sessionId → JSON con datos<br/>
+                        • Usado en lazy cleanup<br/>
+                        • Rastrea sesiones por agente<br/>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Grace Period Flag</h3>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">⏱️</span>
+                    <span class="card-title">Agent Disconnect Flag (TTL: 5 segundos)</span>
+                </div>
+                <div class="grid grid-2">
+                    <div>
+                        <strong>Key:</strong><br/>
+                        <code>webtoq:agents:{tenant}:disconnected:{agentId}</code><br/><br/>
+                        <strong>Type:</strong><br/>
+                        Redis STRING<br/><br/>
+                        <strong>TTL:</strong><br/>
+                        5 segundos (Valkey automático)
+                    </div>
+                    <div>
+                        <strong>Contenido:</strong><br/>
+                        disconnectedAt: timestamp<br/>
+                        sessionIds: [id1, id2, ...]<br/><br/>
+                        <strong>Propósito:</strong><br/>
+                        Prevenir que otros agentes toquen las sesiones durante reconexión.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Attention Flow -->
+        <div id="attention" class="tab-content">
+            <div class="section-title">
+                <span class="icon-badge">3</span>
+                Flujo de Atención Cliente-Agente
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">👥 Proceso Normal Completo</div>
+                <div class="info-box-content">
+                    Desde que el agente crea una sesión hasta que el cliente se conecta, es atendido y puede reconectar. 
+                    Incluye notificaciones SNS y restauración inteligente de estado.
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">Paso 1: Agente crea sesión</div>
+                        <div class="timeline-item-text">
+                            El agente crea una nueva sesión para el cliente<br/>
+                            Estado: <strong>CREATED</strong><br/>
+                            Comparte link con cliente
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">Paso 2: Agente se conecta</div>
+                        <div class="timeline-item-text">
+                            Agente se conecta con rol de agente<br/>
+                            Estado: <strong>CREATED → WAITING</strong><br/>
+                            Sistema: WebSocket Manager
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">Paso 3: Cliente se conecta</div>
+                        <div class="timeline-item-text">
+                            Cliente accede mediante el link compartido<br/>
+                            Se emite notificación de conexión<br/>
+                            Notifica a todos los agentes disponibles
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">Paso 4: Agente solicita clientes en espera</div>
+                        <div class="timeline-item-text">
+                            Agente consulta lista de clientes esperando<br/>
+                            Recibe lista con estado WAITING<br/>
+                            Sistema: Session Attention Service
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">Paso 5: Agente atiende al cliente</div>
+                        <div class="timeline-item-text">
+                            Agente acepta atender la sesión<br/>
+                            Estado: <strong>WAITING → ATTENDED</strong><br/>
+                            Se asigna agentId a la sesión<br/>
+                            Se emite notificación de atención
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">Paso 6: Cliente recibe notificación</div>
+                        <div class="timeline-item-text">
+                            Sistema notifica vía WebSocket<br/>
+                            Cliente recibe confirmación de agente asignado<br/>
+                            Conversación lista para empezar
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">Paso 7: Reconexión (en 24h)</div>
+                        <div class="timeline-item-text">
+                            Cliente desconecta: <strong>ATTENDED → DISCONNECTED</strong><br/>
+                            <strong>Preserva: agentId asignado</strong><br/>
+                            Si reconecta: <strong>DISCONNECTED → ATTENDED</strong><br/>
+                            ✅ Mismo agente, TTL renovado
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Agent Timeout -->
+        <div id="agentTimeout" class="tab-content">
+            <div class="section-title">
+                <span class="icon-badge">4</span>
+                Timeout de Agente (5 segundos)
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">⏱️ Grace Period + Lazy Cleanup</div>
+                <div class="info-box-content">
+                    Cuando un agente se desconecta, hay un período de gracia de 5 segundos. 
+                    Si se reconecta, sus sesiones se preservan. Si no, un sistema de limpieza perezosa (<em>lazy cleanup</em>) 
+                    detecta el timeout cuando sea necesario, sin necesidad de Lambda activo.
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Escenario: Agente tiene 3 clientes atendidos</h3>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">👤</span>
+                    <span class="card-title">Agente Conectado</span>
+                </div>
+                <div class="card-content">
+                    Sesiones activas:<br/>
+                    • Sesión 1 (Cliente 1) - ATTENDED<br/>
+                    • Sesión 2 (Cliente 2) - ATTENDED<br/>
+                    • Sesión 3 (Cliente 3) - ATTENDED
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Timeline</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">T+0s: Agente desconecta</div>
+                        <div class="timeline-item-text">
+                            Se crea flag temporal con TTL de 5 segundos<br/>
+                            Sesiones: <strong>Siguen en ATTENDED</strong> (sin cambios)<br/>
+                            <span class="badge badge-info">Grace Period Activo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">T+2s: Otro agente consulta sesiones</div>
+                        <div class="timeline-item-text">
+                            Sistema verifica flag de agente desconectado: ✅ Existe<br/>
+                            Resultado: NO incluye las 3 sesiones del agente<br/>
+                            <span class="badge badge-warning">Protegido por Grace Period</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">T+3s: CASO A - Agente reconecta (Exitoso)</div>
+                        <div class="timeline-item-text">
+                            Agente se reconecta<br/>
+                            Flag eliminado manualmente<br/>
+                            Sesiones preservadas: <strong>ATTENDED</strong><br/>
+                            Clientes no se enteraron ✅
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">T+5s: CASO B - Flag expira (si no reconecta)</div>
+                        <div class="timeline-item-text">
+                            Valkey TTL elimina flag automáticamente<br/>
+                            Sesiones: Siguen en ATTENDED (sin cambios aún)<br/>
+                            Esperando detección lazy
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">T+7s: Lazy Cleanup - Cliente envía mensaje</div>
+                        <div class="timeline-item-text">
+                            Cliente intenta enviar mensaje<br/>
+                            Sistema verifica: Flag no existe + Sin conexiones activas<br/>
+                            <strong>Detecta: Agent timeout</strong><br/>
+                            Acción: Sesión 1 → WAITING<br/>
+                            Cliente recibe: <span class="badge badge-error">Agente desconectado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-item-content">
+                        <div class="timeline-item-time">T+10s: Otro agente consulta (Lazy Cleanup 2)</div>
+                        <div class="timeline-item-text">
+                            Detecta timeout en sesiones restantes<br/>
+                            Ambas transicionan: <strong>ATTENDED → WAITING</strong><br/>
+                            Retorna las 3 sesiones disponibles<br/>
+                            <span class="badge badge-success">Cleanup Completo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: Client Reconnection -->
+        <div id="clientReconn" class="tab-content">
+            <div class="section-title">
+                <span class="icon-badge">5</span>
+                Reconexión de Cliente (TTL 24 horas)
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-title">🔄 Tres Escenarios</div>
+                <div class="info-box-content">
+                    Los clientes tienen 24 horas para reconectar. Según el estado cuando se desconectaron, 
+                    el sistema restaura inteligentemente la sesión preservando al agente si fue asignado.
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Escenario 1: Desconexión SIN agente</h3>
+            <div class="card mb-lg">
+                <div class="card-header">
+                    <span class="card-icon">⏳</span>
+                    <span class="card-title">Cliente en WAITING desconecta</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box" style="background: #E3F2FD;">WAITING</div>
+                    <div class="flow-arrow">→ desconecta</div>
+                    <div class="flow-box" style="background: #FCE4EC;">DISCONNECTED</div>
+                    <div class="flow-arrow">→ reconecta (5m)</div>
+                    <div class="flow-box" style="background: #E3F2FD;">WAITING</div>
+                </div>
+                <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+                    <strong>Estado preservado:</strong> Sin agente asignado<br/>
+                    <strong>TTL renovado:</strong> 24 horas desde reconexión<br/>
+                    <strong>Resultado:</strong> Cliente vuelve a la cola de espera
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Escenario 2: Desconexión CON agente asignado</h3>
+            <div class="card mb-lg">
+                <div class="card-header">
+                    <span class="card-icon">✅</span>
+                    <span class="card-title">Cliente en ATTENDED desconecta</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box" style="background: #E8F5E9;">ATTENDED<br/>(agentId)</div>
+                    <div class="flow-arrow">→ desconecta</div>
+                    <div class="flow-box" style="background: #FCE4EC;">DISCONNECTED<br/><strong>preserva agentId</strong></div>
+                    <div class="flow-arrow">→ reconecta (10m)</div>
+                    <div class="flow-box" style="background: #E8F5E9;">ATTENDED<br/>(mismo agentId)</div>
+                </div>
+                <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+                    <strong>🔑 Crucial:</strong> agentId preservado durante DISCONNECTED<br/>
+                    <strong>TTL renovado:</strong> 24 horas desde reconexión<br/>
+                    <strong>Resultado:</strong> Vuelve con mismo agente, conversación continúa ✅<br/>
+                    <strong>Evento:</strong> Cliente recibe notificación de reconexión
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Escenario 3: NO reconecta en 24 horas</h3>
+            <div class="card mb-lg">
+                <div class="card-header">
+                    <span class="card-icon">⏰</span>
+                    <span class="card-title">TTL expira automáticamente</span>
+                </div>
+                <div style="background: var(--color-bg); padding: var(--spacing-lg); border-radius: var(--radius);">
+                    <strong>T+24h:</strong> Valkey TTL = 0<br/>
+                    Sistema ejecuta automáticamente:<br/>
+                    • Elimina sesión<br/>
+                    • Elimina índices de estado<br/>
+                    • Elimina referencia de conexión<br/>
+                    • Elimina referencia de agente<br/><br/>
+                    <strong>Estado final:</strong> EXPIRED (implícito)
+                </div>
+                <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+                    <strong>Resultado:</strong> Cliente debe crear <strong>nueva sesión</strong><br/>
+                    <strong>Contexto:</strong> No se recupera conversación anterior
+                </div>
+            </div>
+
+            <h3 class="mt-lg" style="color: var(--color-primary);">Comparación: Cliente vs Agente</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspecto</th>
+                        <th>Cliente Desconectado</th>
+                        <th>Agente Desconectado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Timeout</strong></td>
+                        <td>24 horas</td>
+                        <td>5 segundos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Preserva agente</strong></td>
+                        <td>✅ Sí (si existía)</td>
+                        <td>⚠️ Solo con grace period</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mecanismo</strong></td>
+                        <td>TTL automático de Valkey</td>
+                        <td>Grace period + Lazy cleanup</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Limpieza</strong></td>
+                        <td>Automática</td>
+                        <td>On-demand</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Prioridad</strong></td>
+                        <td>Preservar contexto conversación</td>
+                        <td>Disponibilidad de servicio</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reconexión</strong></td>
+                        <td>Restaura estado previo</td>
+                        <td>Cancela desasignación</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
