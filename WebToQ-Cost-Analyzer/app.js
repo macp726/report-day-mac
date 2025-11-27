@@ -359,6 +359,11 @@ function calculateCosts() {
   updateCostTable(costs);
   updateCharts(costs);
   updateRecommendations(costs);
+  
+  // Update agent calculator if it exists
+  if (typeof updateAgentCalculator === 'function' && document.getElementById('calc-clients-per-agent')) {
+    updateAgentCalculator();
+  }
 }
 
 // Update cost table
@@ -1122,6 +1127,94 @@ function updateInstanceComparisonHighlight() {
     instanceComparisonChart.update();
   } catch (error) {
     console.error('Error updating instance comparison chart:', error);
+  }
+}
+
+// Agent Calculator
+window.updateAgentCalculator = function updateAgentCalculator() {
+  const clientsPerAgent = parseFloat(document.getElementById('calc-clients-per-agent').value) || 4;
+  const workDays = parseFloat(document.getElementById('calc-work-days').value) || 22;
+  
+  // Obtener el costo total actual de la configuración
+  const totalMonthlyElement = document.getElementById('total-monthly');
+  let totalCost = 495; // default
+  if (totalMonthlyElement && totalMonthlyElement.textContent) {
+    const costText = totalMonthlyElement.textContent.replace('$', '').replace(',', '');
+    totalCost = parseFloat(costText) || 495;
+  }
+  
+  // Obtener las sesiones del escenario actual
+  const scenario = scenarios[currentEnvironment];
+  const totalSessions = scenario.sessionsPerMonth || (scenario.lambdaRequests / 22); // Estimación si no está definido
+  
+  // Actualizar displays
+  const scenarioSelector = document.getElementById('calc-scenario');
+  if (scenarioSelector) {
+    scenarioSelector.value = currentEnvironment;
+  }
+  
+  const costDisplay = document.getElementById('calc-total-cost-display');
+  if (costDisplay) {
+    costDisplay.value = '$' + totalCost.toFixed(2);
+  }
+  
+  // Cálculos
+  const sessionsPerAgent = clientsPerAgent * workDays;
+  const agentsSupported = Math.floor(totalSessions / sessionsPerAgent);
+  const costPerAgent = agentsSupported > 0 ? totalCost / agentsSupported : 0;
+  const costPerSession = totalSessions > 0 ? totalCost / totalSessions : 0;
+  
+  // Actualizar resultados
+  document.getElementById('calc-result-agents').textContent = agentsSupported.toLocaleString();
+  document.getElementById('calc-result-cost-per-agent').textContent = '$' + costPerAgent.toFixed(2);
+  document.getElementById('calc-result-cost-per-session').textContent = '$' + costPerSession.toFixed(4);
+  document.getElementById('calc-result-sessions-per-agent').textContent = sessionsPerAgent.toLocaleString();
+  
+  // Insight dinámico
+  const revenuePerAgent = 5; // Asumiendo $5/agente/mes
+  const margin = costPerAgent > 0 ? ((revenuePerAgent - costPerAgent) / revenuePerAgent * 100).toFixed(0) : 0;
+  const costPercentage = costPerAgent > 0 ? (costPerAgent / revenuePerAgent * 100).toFixed(0) : 0;
+  
+  let insight = `<strong>💡 Análisis:</strong> Con esta configuración, puedes soportar <strong>${agentsSupported.toLocaleString()} agentes</strong> con un costo de infraestructura de solo <strong>$${costPerAgent.toFixed(2)}/agente/mes</strong>. `;
+  
+  if (costPerAgent < 1) {
+    insight += `Si cobras $${revenuePerAgent}/agente, tu margen bruto sería del <strong>${margin}%</strong> (infra = ${costPercentage}% del revenue). `;
+    if (margin >= 85) {
+      insight += `<span style="color:var(--color-success);">✅ Excelente margen!</span>`;
+    } else if (margin >= 70) {
+      insight += `<span style="color:var(--color-success);">✅ Buen margen</span>`;
+    } else {
+      insight += `<span style="color:var(--color-warning);">⚠️ Margen ajustado</span>`;
+    }
+  } else {
+    insight += `<span style="color:var(--color-warning);">⚠️ Costo por agente alto - considera optimizar o aumentar precio.</span>`;
+  }
+  
+  // Agregar contexto del escenario
+  const scenarioNames = {
+    'base': 'Uso Base (Dev/Testing)',
+    'medio': 'Uso Medio (Staging)',
+    'alto': 'Uso Alto (Producción)',
+    'webtoq': 'Proyección WebToQ',
+    'burstable': 'Burstable t4g (NO Recomendado)'
+  };
+  
+  insight += `<br><br><strong>📊 Escenario:</strong> ${scenarioNames[currentEnvironment] || currentEnvironment} - ${Math.round(totalSessions).toLocaleString()} sesiones/mes con infraestructura de <strong>$${totalCost.toFixed(2)}/mes</strong>.`;
+  
+  document.getElementById('calc-result-insight').innerHTML = insight;
+};
+
+// Initialize calculator on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('calc-clients-per-agent')) {
+      updateAgentCalculator();
+    }
+  });
+} else {
+  // DOMContentLoaded already fired
+  if (document.getElementById('calc-clients-per-agent')) {
+    updateAgentCalculator();
   }
 }
 

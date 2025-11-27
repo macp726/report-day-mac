@@ -666,6 +666,33 @@ select.form-control {
         <!-- WebToQ Projection Panel -->
         <div id="webtoq-panel" class="config-panel" style="display:none;max-width:1200px;margin:0 auto var(--space-32) auto;">
             <h2 class="panel-title">🎯 Proyección WebToQ - 1,000 Agentes × 4 Clientes/día</h2>
+            
+            <!-- Cost per Session Badge -->
+            <div style="margin-bottom:var(--space-24);padding:var(--space-20);background:linear-gradient(135deg, var(--color-bg-3) 0%, var(--color-bg-1) 100%);border-radius:var(--radius-lg);border:2px solid var(--color-success);">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-16);">
+                    <div>
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">💵 Costo por Sesión Cliente-Agente</div>
+                        <div style="font-size:var(--font-size-4xl);font-weight:var(--font-weight-bold);color:var(--color-success);">$0.0036 - $0.0054</div>
+                        <div style="font-size:var(--font-size-sm);color:var(--color-text);margin-top:var(--space-4);">
+                            <strong>0.36 - 0.54 centavos</strong> por sesión completa (incluye toda la infraestructura)
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">📊 Sesiones Totales</div>
+                        <div style="font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--color-text);">110,000/mes</div>
+                        <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);margin-top:var(--space-4);">
+                            ~3,667 sesiones/día
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:var(--space-16);padding-top:var(--space-16);border-top:1px solid var(--color-border);">
+                    <p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text);line-height:1.6;">
+                        <strong>💡 Contexto:</strong> Si cobras $5-10/agente/mes, el costo de infraestructura representa solo ~5-10% del revenue. 
+                        Cada sesión usa ~113 requests (auth, mensajes, sync, heartbeats).
+                    </p>
+                </div>
+            </div>
+            
             <div class="service-config">
                 <div class="service-title">
                     <span class="service-icon">📊</span>
@@ -769,6 +796,33 @@ select.form-control {
         <!-- Burstable t4g Panel -->
         <div id="burstable-panel" class="config-panel" style="display:none;max-width:1200px;margin:0 auto var(--space-32) auto;">
             <h2 class="panel-title" style="color:var(--color-error);">⚠️ Instancia Burstable (t4g.medium) - NO Recomendado</h2>
+            
+            <!-- Cost per Session Badge - Burstable -->
+            <div style="margin-bottom:var(--space-24);padding:var(--space-20);background:linear-gradient(135deg, rgba(var(--color-error-rgb),0.1) 0%, rgba(var(--color-warning-rgb),0.1) 100%);border-radius:var(--radius-lg);border:2px solid var(--color-error);">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-16);">
+                    <div>
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">💵 Costo por Sesión (aparente)</div>
+                        <div style="font-size:var(--font-size-4xl);font-weight:var(--font-weight-bold);color:var(--color-error);">$0.0032 - $0.0041</div>
+                        <div style="font-size:var(--font-size-sm);color:var(--color-text);margin-top:var(--space-4);">
+                            <strong>0.32 - 0.41 centavos</strong> por sesión <span style="color:var(--color-error);">(PERO con degradación!)</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:var(--font-size-xs);color:var(--color-error);margin-bottom:var(--space-4);">⚠️ Costo Real con Downtime</div>
+                        <div style="font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--color-error);">$0.008 - $0.012</div>
+                        <div style="font-size:var(--font-size-sm);color:var(--color-error);margin-top:var(--space-4);">
+                            ~3x más caro por pérdida de clientes
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:var(--space-16);padding-top:var(--space-16);border-top:1px solid var(--color-error);">
+                    <p style="margin:0;font-size:var(--font-size-sm);color:var(--color-text);line-height:1.6;">
+                        <strong style="color:var(--color-error);">❌ ALERTA:</strong> El "ahorro" de $108/mes vs r7g.large se pierde completamente con la primera hora de downtime. 
+                        Performance degrada después de 4-5 horas → clientes insatisfechos → pérdida de revenue.
+                    </p>
+                </div>
+            </div>
+            
             <div style="margin-bottom:var(--space-24);padding:var(--space-20);background:rgba(var(--color-error-rgb),0.08);border:1.5px solid var(--color-error);border-radius:var(--radius-lg);">
                 <strong style="color:var(--color-error);font-size:var(--font-size-lg);display:block;margin-bottom:var(--space-8);">ADVERTENCIA: Instancia Burstable (NO Recomendado para Producción)</strong>
                 <ul style="margin:0 0 var(--space-12) 0;padding-left:var(--space-20);color:var(--color-text);line-height:1.8;">
@@ -1066,6 +1120,231 @@ select.form-control {
         <div class="config-panel" style="max-width:1200px;margin:var(--space-32) auto;">
             <h2 class="panel-title">📚 Guía de Análisis: Cómo Entender los Costos</h2>
             
+            <!-- Nueva sección: Costo por Sesión -->
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">💰</span>
+                    <span>Costo por Sesión Cliente-Agente</span>
+                </div>
+                <p style="margin-bottom:var(--space-12);color:var(--color-text-secondary);line-height:1.6;">
+                    Análisis del <strong>costo real por sesión</strong> de chat entre cliente y agente en cada escenario de infraestructura:
+                </p>
+                
+                <table class="cost-table" style="font-size:var(--font-size-sm);margin-bottom:var(--space-16);">
+                    <thead>
+                        <tr>
+                            <th>Escenario</th>
+                            <th>Sesiones/mes</th>
+                            <th>Costo Total/mes</th>
+                            <th style="background:var(--color-bg-1);">💵 Costo/Sesión</th>
+                            <th>Economía de Escala</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Uso Base</strong><br><span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Dev/Testing</span></td>
+                            <td>~25,000</td>
+                            <td class="cost-value cost-low">$80-120</td>
+                            <td class="cost-value" style="font-weight:var(--font-weight-bold);color:var(--color-warning);background:var(--color-bg-1);">$0.0032-0.0048</td>
+                            <td><span style="color:var(--color-text-secondary);font-size:var(--font-size-xs);">Bajo volumen</span><br><span style="color:var(--color-warning);font-weight:var(--font-weight-semibold);">0.32-0.48¢</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Uso Medio</strong><br><span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Staging</span></td>
+                            <td>~500,000</td>
+                            <td class="cost-value cost-medium">$250-350</td>
+                            <td class="cost-value" style="font-weight:var(--font-weight-bold);color:var(--color-success);background:var(--color-bg-1);">$0.0005-0.0007</td>
+                            <td><span style="color:var(--color-text-secondary);font-size:var(--font-size-xs);">Mejor eficiencia</span><br><span style="color:var(--color-success);font-weight:var(--font-weight-semibold);">0.05-0.07¢</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Uso Alto</strong><br><span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Producción</span></td>
+                            <td>~5,000,000</td>
+                            <td class="cost-value cost-high">$600-900</td>
+                            <td class="cost-value" style="font-weight:var(--font-weight-bold);color:var(--color-success);background:var(--color-bg-1);">$0.00012-0.00018</td>
+                            <td><span style="color:var(--color-text-secondary);font-size:var(--font-size-xs);">Máxima eficiencia</span><br><span style="color:var(--color-success);font-weight:var(--font-weight-semibold);">0.012-0.018¢</span></td>
+                        </tr>
+                        <tr style="background:var(--color-bg-3);border:2px solid var(--color-success);">
+                            <td><strong>🎯 Proyección WebToQ</strong><br><span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">1,000 Agentes × 4 Clientes/día</span></td>
+                            <td><strong>110,000</strong></td>
+                            <td class="cost-value" style="font-weight:var(--font-weight-bold);">$400-590</td>
+                            <td class="cost-value" style="font-weight:var(--font-weight-bold);color:var(--color-success);background:var(--color-surface);font-size:var(--font-size-lg);">$0.0036-0.0054</td>
+                            <td><span style="color:var(--color-text-secondary);font-size:var(--font-size-xs);">Óptimo producción</span><br><span style="color:var(--color-success);font-weight:var(--font-weight-bold);">0.36-0.54¢</span></td>
+                        </tr>
+                        <tr style="background:rgba(var(--color-error-rgb),0.05);">
+                            <td><strong>⚠️ Burstable t4g</strong><br><span style="font-size:var(--font-size-xs);color:var(--color-error);">NO Recomendado</span></td>
+                            <td>110,000</td>
+                            <td class="cost-value">$350-450</td>
+                            <td class="cost-value" style="font-weight:var(--font-weight-bold);color:var(--color-error);background:var(--color-bg-1);">$0.0032-0.0041</td>
+                            <td><span style="color:var(--color-error);font-size:var(--font-size-xs);font-weight:var(--font-weight-semibold);">❌ Degradación</span><br><span style="color:var(--color-error);">0.32-0.41¢</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="background:var(--color-bg-2);padding:var(--space-16);border-radius:var(--radius-base);margin-bottom:var(--space-16);">
+                    <p style="margin:0 0 var(--space-12) 0;color:var(--color-text);font-size:var(--font-size-sm);line-height:1.6;">
+                        <strong>📊 Cómo se calcula el Costo por Sesión:</strong>
+                    </p>
+                    <ol style="margin:0;padding-left:var(--space-24);color:var(--color-text);font-size:var(--font-size-sm);line-height:1.8;">
+                        <li><strong>Requests por Sesión:</strong> Se estima que una sesión completa cliente-agente genera ~20-25 requests promedio (login, mensajes, sync, heartbeats, logout)</li>
+                        <li><strong>Sesiones por Mes:</strong> Total de Lambda Requests ÷ Requests por Sesión = Sesiones/mes</li>
+                        <li><strong>Costo Total:</strong> Suma de todos los servicios (Lambda + API Gateway + RDS + Valkey + VPC + CloudWatch)</li>
+                        <li><strong>Costo por Sesión:</strong> Costo Total Mensual ÷ Sesiones por Mes</li>
+                    </ol>
+                </div>
+
+                <div style="background:var(--color-bg-3);padding:var(--space-16);border-radius:var(--radius-base);border-left:4px solid var(--color-success);">
+                    <p style="margin:0;color:var(--color-text);font-size:var(--font-size-sm);line-height:1.6;">
+                        <strong>💡 Insights Clave:</strong><br><br>
+                        
+                        <strong style="color:var(--color-success);">✅ Economía de Escala:</strong> El costo por sesión BAJA drásticamente con volumen. 
+                        Uso Alto (5M sesiones) es <strong>30x más barato</strong> por sesión que Uso Base.<br><br>
+                        
+                        <strong style="color:var(--color-success);">✅ WebToQ está en punto óptimo:</strong> Con 110,000 sesiones/mes, el costo de 
+                        <strong>0.36-0.54¢ por sesión</strong> es excelente comparado con soluciones SaaS ($1-5 por sesión).<br><br>
+                        
+                        <strong style="color:var(--color-primary);">📈 WebToQ Requests por Sesión = 113:</strong> 
+                        Esto incluye autenticación, mensajes bidireccionales, sincronización en tiempo real, heartbeats. 
+                        Es razonable para sesiones de chat de 15-30 minutos.<br><br>
+                        
+                        <strong style="color:var(--color-error);">⚠️ t4g NO vale el ahorro:</strong> 
+                        Aunque parece $40-140/mes más barato, la degradación de performance después de 4-5 horas 
+                        significa pérdida de clientes y revenue. El "ahorro" se pierde en la primera hora de downtime.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Nueva Sección: Calculadora de Agentes -->
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">🧮</span>
+                    <span>Calculadora: Agentes Soportados y Costo por Agente</span>
+                </div>
+                <p style="margin-bottom:var(--space-16);color:var(--color-text-secondary);line-height:1.6;">
+                    Calcula cuántos agentes puedes soportar según las sesiones mensuales, y el costo de infraestructura por agente:
+                </p>
+
+                <!-- Tabla con valores precargados por escenario -->
+                <table class="cost-table" style="font-size:var(--font-size-sm);margin-bottom:var(--space-16);">
+                    <thead>
+                        <tr>
+                            <th>Escenario</th>
+                            <th>Sesiones/mes</th>
+                            <th>Costo Total</th>
+                            <th style="background:var(--color-bg-1);">👥 Agentes*</th>
+                            <th style="background:var(--color-bg-2);">💵 Costo/Agente</th>
+                            <th style="background:var(--color-bg-3);">💰 Costo/Sesión</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Uso Base</strong></td>
+                            <td>25,000</td>
+                            <td class="cost-value">$80-120</td>
+                            <td style="background:var(--color-bg-1);font-weight:var(--font-weight-bold);color:var(--color-primary);">~284</td>
+                            <td style="background:var(--color-bg-2);font-weight:var(--font-weight-semibold);">$0.28 - $0.42</td>
+                            <td style="background:var(--color-bg-3);">$0.0032 - $0.0048</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Uso Medio</strong></td>
+                            <td>500,000</td>
+                            <td class="cost-value">$250-350</td>
+                            <td style="background:var(--color-bg-1);font-weight:var(--font-weight-bold);color:var(--color-primary);">~5,682</td>
+                            <td style="background:var(--color-bg-2);font-weight:var(--font-weight-semibold);">$0.044 - $0.062</td>
+                            <td style="background:var(--color-bg-3);">$0.0005 - $0.0007</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Uso Alto</strong></td>
+                            <td>5,000,000</td>
+                            <td class="cost-value">$600-900</td>
+                            <td style="background:var(--color-bg-1);font-weight:var(--font-weight-bold);color:var(--color-primary);">~56,818</td>
+                            <td style="background:var(--color-bg-2);font-weight:var(--font-weight-semibold);">$0.011 - $0.016</td>
+                            <td style="background:var(--color-bg-3);">$0.00012 - $0.00018</td>
+                        </tr>
+                        <tr style="background:var(--color-bg-3);border:2px solid var(--color-success);">
+                            <td><strong>🎯 WebToQ</strong></td>
+                            <td><strong>110,000</strong></td>
+                            <td class="cost-value" style="font-weight:var(--font-weight-bold);">$400-590</td>
+                            <td style="background:var(--color-surface);font-weight:var(--font-weight-bold);color:var(--color-success);font-size:var(--font-size-lg);">~1,250</td>
+                            <td style="background:var(--color-surface);font-weight:var(--font-weight-bold);color:var(--color-success);font-size:var(--font-size-lg);">$0.32 - $0.47</td>
+                            <td style="background:var(--color-surface);font-weight:var(--font-weight-bold);">$0.0036 - $0.0054</td>
+                        </tr>
+                        <tr style="background:rgba(var(--color-error-rgb),0.05);">
+                            <td><strong>⚠️ Burstable</strong></td>
+                            <td>110,000</td>
+                            <td class="cost-value">$350-450</td>
+                            <td style="background:var(--color-bg-1);font-weight:var(--font-weight-bold);color:var(--color-error);">~1,250</td>
+                            <td style="background:var(--color-bg-2);font-weight:var(--font-weight-semibold);color:var(--color-error);">$0.28 - $0.36</td>
+                            <td style="background:var(--color-bg-3);color:var(--color-error);">$0.0032 - $0.0041</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="background:var(--color-bg-1);padding:var(--space-12);border-radius:var(--radius-base);margin-bottom:var(--space-16);font-size:var(--font-size-xs);color:var(--color-text-secondary);">
+                    <strong>* Cálculo de Agentes:</strong> Asumiendo 4 clientes/agente/día × 22 días laborables = 88 sesiones/agente/mes. 
+                    <strong>Agentes = Sesiones totales ÷ 88</strong>
+                </div>
+
+                <!-- Calculadora Interactiva -->
+                <div style="background:var(--color-surface);padding:var(--space-20);border-radius:var(--radius-lg);border:2px solid var(--color-primary);margin-top:var(--space-24);">
+                    <h4 style="margin:0 0 var(--space-16) 0;color:var(--color-text);font-size:var(--font-size-lg);font-weight:var(--font-weight-semibold);">
+                        🧮 Calculadora Personalizada
+                    </h4>
+                    
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-16);margin-bottom:var(--space-16);">
+                        <div class="form-group">
+                            <label class="form-label">Clientes por Agente/día</label>
+                            <input type="number" id="calc-clients-per-agent" class="form-control" value="4" min="1" max="10" step="1" onchange="updateAgentCalculator()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Días Laborables/mes</label>
+                            <input type="number" id="calc-work-days" class="form-control" value="22" min="15" max="30" step="1" onchange="updateAgentCalculator()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Escenario Actual</label>
+                            <select id="calc-scenario" class="form-control" onchange="updateAgentCalculator()" disabled>
+                                <option value="base">Uso Base</option>
+                                <option value="medio">Uso Medio</option>
+                                <option value="alto">Uso Alto</option>
+                                <option value="webtoq" selected>Proyección WebToQ</option>
+                                <option value="burstable">Burstable (t4g)</option>
+                            </select>
+                            <div class="info-text">Cambia con los botones arriba</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Costo Total/mes (Auto)</label>
+                            <input type="text" id="calc-total-cost-display" class="form-control" value="$495" readonly style="background:var(--color-bg-1);cursor:not-allowed;">
+                            <div class="info-text">Calculado de la configuración actual</div>
+                        </div>
+                    </div>
+
+                    <!-- Resultados -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-12);margin-top:var(--space-20);padding-top:var(--space-20);border-top:2px solid var(--color-border);">
+                        <div style="text-align:center;padding:var(--space-16);background:var(--color-bg-1);border-radius:var(--radius-base);">
+                            <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">👥 Agentes Soportados</div>
+                            <div id="calc-result-agents" style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-primary);">1,250</div>
+                        </div>
+                        <div style="text-align:center;padding:var(--space-16);background:var(--color-bg-2);border-radius:var(--radius-base);">
+                            <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">💵 Costo por Agente/mes</div>
+                            <div id="calc-result-cost-per-agent" style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-success);">$0.40</div>
+                        </div>
+                        <div style="text-align:center;padding:var(--space-16);background:var(--color-bg-3);border-radius:var(--radius-base);">
+                            <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">💰 Costo por Sesión</div>
+                            <div id="calc-result-cost-per-session" style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-text);">$0.0045</div>
+                        </div>
+                        <div style="text-align:center;padding:var(--space-16);background:var(--color-bg-4);border-radius:var(--radius-base);">
+                            <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">📊 Sesiones/Agente/mes</div>
+                            <div id="calc-result-sessions-per-agent" style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-text);">88</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:var(--space-16);padding:var(--space-12);background:var(--color-bg-5);border-radius:var(--radius-base);">
+                        <p id="calc-result-insight" style="margin:0;font-size:var(--font-size-sm);color:var(--color-text);line-height:1.6;">
+                            <strong>💡 Análisis:</strong> Con esta configuración, puedes soportar <strong>1,250 agentes</strong> con un costo de infraestructura de solo <strong>$0.40/agente/mes</strong>. 
+                            Si cobras $5/agente, tu margen bruto sería del 92%.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <div class="service-config">
                 <div class="service-title">
                     <span class="service-icon">🔢</span>
