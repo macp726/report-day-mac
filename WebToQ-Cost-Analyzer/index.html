@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebToQ Cost Analyzer v7</title>
+    <style>
+        :root {
+  /* Primitive Color Tokens */
+  --color-white: rgba(255, 255, 255, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-cream-50: rgba(252, 252, 249, 1);
+  --color-cream-100: rgba(255, 255, 253, 1);
+  --color-gray-200: rgba(245, 245, 245, 1);
+  --color-gray-300: rgba(167, 169, 169, 1);
+  --color-gray-400: rgba(119, 124, 124, 1);
+  --color-slate-500: rgba(98, 108, 113, 1);
+  --color-brown-600: rgba(94, 82, 64, 1);
+  --color-charcoal-700: rgba(31, 33, 33, 1);
+  --color-charcoal-800: rgba(38, 40, 40, 1);
+  --color-slate-900: rgba(19, 52, 59, 1);
+  --color-teal-300: rgba(50, 184, 198, 1);
+  --color-teal-400: rgba(45, 166, 178, 1);
+  --color-teal-500: rgba(33, 128, 141, 1);
+  --color-teal-600: rgba(29, 116, 128, 1);
+  --color-teal-700: rgba(26, 104, 115, 1);
+  --color-teal-800: rgba(41, 150, 161, 1);
+  --color-red-400: rgba(255, 84, 89, 1);
+  --color-red-500: rgba(192, 21, 47, 1);
+  --color-orange-400: rgba(230, 129, 97, 1);
+  --color-orange-500: rgba(168, 75, 47, 1);
+
+  --color-brown-600-rgb: 94, 82, 64;
+  --color-teal-500-rgb: 33, 128, 141;
+  --color-slate-900-rgb: 19, 52, 59;
+  --color-slate-500-rgb: 98, 108, 113;
+  --color-red-500-rgb: 192, 21, 47;
+  --color-red-400-rgb: 255, 84, 89;
+  --color-orange-500-rgb: 168, 75, 47;
+  --color-orange-400-rgb: 230, 129, 97;
+
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+  --color-bg-6: rgba(249, 115, 22, 0.08);
+  --color-bg-7: rgba(236, 72, 153, 0.08);
+  --color-bg-8: rgba(6, 182, 212, 0.08);
+
+  --color-background: var(--color-cream-50);
+  --color-surface: var(--color-cream-100);
+  --color-text: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-500);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-600);
+  --color-primary-active: var(--color-teal-700);
+  --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+  --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-btn-primary-text: var(--color-cream-50);
+  --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-error: var(--color-red-500);
+  --color-success: var(--color-teal-500);
+  --color-warning: var(--color-orange-500);
+  --color-info: var(--color-slate-500);
+  --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+  --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --focus-outline: 2px solid var(--color-primary);
+  --status-bg-opacity: 0.15;
+  --status-border-opacity: 0.25;
+  --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+  --color-success-rgb: 33, 128, 141;
+  --color-error-rgb: 192, 21, 47;
+  --color-warning-rgb: 168, 75, 47;
+  --color-info-rgb: 98, 108, 113;
+
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --letter-spacing-tight: -0.01em;
+
+  --space-0: 0;
+  --space-1: 1px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+
+  --color-cost-low: #208C7E;
+  --color-cost-medium: #FFB627;
+  --color-cost-high: #E84D4D;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-gray-400-rgb: 119, 124, 124;
+    --color-teal-300-rgb: 50, 184, 198;
+    --color-gray-300-rgb: 167, 169, 169;
+    --color-gray-200-rgb: 245, 245, 245;
+
+    --color-bg-1: rgba(29, 78, 216, 0.15);
+    --color-bg-2: rgba(180, 83, 9, 0.15);
+    --color-bg-3: rgba(21, 128, 61, 0.15);
+    --color-bg-4: rgba(185, 28, 28, 0.15);
+    --color-bg-5: rgba(107, 33, 168, 0.15);
+    --color-bg-6: rgba(194, 65, 12, 0.15);
+    --color-bg-7: rgba(190, 24, 93, 0.15);
+    --color-bg-8: rgba(8, 145, 178, 0.15);
+
+    --color-background: var(--color-charcoal-700);
+    --color-surface: var(--color-charcoal-800);
+    --color-text: var(--color-gray-200);
+    --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+    --color-primary: var(--color-teal-300);
+    --color-primary-hover: var(--color-teal-400);
+    --color-primary-active: var(--color-teal-800);
+    --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+    --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+    --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-error: var(--color-red-400);
+    --color-success: var(--color-teal-300);
+    --color-warning: var(--color-orange-400);
+    --color-info: var(--color-gray-300);
+    --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
+    --color-btn-primary-text: var(--color-slate-900);
+    --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+    --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
+
+    --color-success-rgb: var(--color-teal-300-rgb);
+    --color-error-rgb: var(--color-red-400-rgb);
+    --color-warning-rgb: var(--color-orange-400-rgb);
+    --color-info-rgb: var(--color-gray-300-rgb);
+  }
+}
+
+@font-face {
+  font-family: 'FKGroteskNeue';
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  min-height: 100vh;
+  padding: var(--space-24);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-32);
+  padding-bottom: var(--space-24);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-8);
+}
+
+.header p {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-12);
+}
+
+.header .update-date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-1);
+  display: inline-block;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+}
+
+.environment-selector {
+  display: flex;
+  gap: var(--space-12);
+  justify-content: center;
+  margin-bottom: var(--space-32);
+}
+
+.env-button {
+  padding: var(--space-12) var(--space-24);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  min-width: 180px;
+}
+
+.env-button:hover {
+  background: var(--color-secondary);
+  border-color: var(--color-primary);
+}
+
+.env-button.active {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border-color: var(--color-primary);
+}
+
+.env-button .env-name {
+  display: block;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.env-button .env-desc {
+  display: block;
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-24);
+  margin-bottom: var(--space-32);
+}
+
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.config-panel, .results-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-20);
+  color: var(--color-text);
+}
+
+.service-config {
+  margin-bottom: var(--space-24);
+  padding-bottom: var(--space-24);
+  border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+.service-config:last-child {
+  border-bottom: none;
+}
+
+.service-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-12);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.service-icon {
+  font-size: var(--font-size-xl);
+}
+
+.form-group {
+  margin-bottom: var(--space-16);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-6);
+  color: var(--color-text);
+}
+
+.form-control {
+  width: 100%;
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
+}
+
+select.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: var(--select-caret-light);
+  background-repeat: no-repeat;
+  background-position: right var(--space-12) center;
+  background-size: 16px;
+  padding-right: var(--space-32);
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  select.form-control {
+    background-image: var(--select-caret-dark);
+  }
+}
+
+.form-control:focus {
+  outline: var(--focus-outline);
+  border-color: var(--color-primary);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.radio-option:hover {
+  background: var(--color-bg-1);
+}
+
+.radio-option input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.price-display {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-4);
+}
+
+.price-highlight {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.cost-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-24);
+  font-size: var(--font-size-sm);
+}
+
+.cost-table thead {
+  background: var(--color-bg-1);
+}
+
+.cost-table th {
+  padding: var(--space-12);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.cost-table td {
+  padding: var(--space-10) var(--space-12);
+  border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+.cost-table tbody tr:hover {
+  background: var(--color-bg-1);
+}
+
+.cost-table tfoot {
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-bg-2);
+}
+
+.cost-table tfoot td {
+  padding: var(--space-12);
+  border-top: 2px solid var(--color-border);
+}
+
+.cost-value {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-medium);
+}
+
+.cost-low {
+  color: var(--color-cost-low);
+}
+
+.cost-medium {
+  color: var(--color-cost-medium);
+}
+
+.cost-high {
+  color: var(--color-cost-high);
+}
+
+.savings-badge {
+  display: inline-block;
+  padding: var(--space-2) var(--space-8);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  background: rgba(var(--color-success-rgb), 0.15);
+  color: var(--color-success);
+}
+
+.chart-container {
+  margin-bottom: var(--space-24);
+  background: var(--color-background);
+  padding: var(--space-16);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-card-border-inner);
+}
+
+.chart-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-16);
+  color: var(--color-text);
+}
+
+.chart-wrapper {
+  height: 300px;
+  position: relative;
+}
+
+.recommendations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-16);
+  margin-bottom: var(--space-32);
+}
+
+.recommendation-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-20);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.recommendation-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-12);
+}
+
+.recommendation-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.savings-tag {
+  background: var(--color-success);
+  color: var(--color-btn-primary-text);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.recommendation-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.footer {
+  text-align: center;
+  padding: var(--space-24);
+  border-top: 1px solid var(--color-border);
+}
+
+.export-button {
+  padding: var(--space-12) var(--space-24);
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border: none;
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+  margin-bottom: var(--space-16);
+}
+
+.export-button:hover {
+  background: var(--color-primary-hover);
+}
+
+.footer-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.footer-link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+.serverless-config, .cluster-config {
+  display: none;
+  margin-top: var(--space-12);
+  padding: var(--space-12);
+  background: var(--color-bg-1);
+  border-radius: var(--radius-base);
+}
+
+.serverless-config.active, .cluster-config.active {
+  display: block;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+}
+
+.info-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin-top: var(--space-4);
+}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>⚡ WebToQ AWS Cost Analyzer v7</h1>
+            <p>Análisis y optimización de costos de infraestructura</p>
+            <span class="update-date">📅 Precios actualizados: Noviembre 2025 (us-east-1)</span>
+            <div style="margin-top:var(--space-16);padding:var(--space-12);background:var(--color-bg-2);border-radius:var(--radius-base);max-width:800px;margin-left:auto;margin-right:auto;">
+                <p style="font-size:var(--font-size-sm);color:var(--color-text-secondary);margin:0;"><strong>Nota sobre req/mes:</strong> Los "requests por mes" se refieren a invocaciones de Lambda + llamadas a API Gateway. Esto puede traducirse en:<br>
+                • <strong>10K req/mes (Base)</strong>: ~500 sesiones de cliente/agente por mes, ideal para dev/testing<br>
+                • <strong>1M req/mes (Medio)</strong>: ~50,000 sesiones mensuales, staging o producción pequeña<br>
+                • <strong>10M req/mes (Alto)</strong>: ~500,000 sesiones mensuales, producción alta demanda<br>
+                <em>Para Valkey: consultas se almacenan en caché, el storage refleja datos activos (sessions, tokens, etc.)</em></p>
+            </div>
+        </header>
+
+        <div class="environment-selector">
+            <button class="env-button active" data-env="base" onclick="switchEnvironment('base')">
+                <span class="env-name">Uso Base</span>
+                <span class="env-desc">Dev/Testing - 10K req/mes</span>
+            </button>
+            <button class="env-button" data-env="medio" onclick="switchEnvironment('medio')">
+                <span class="env-name">Uso Medio</span>
+                <span class="env-desc">Staging - 1M req/mes</span>
+            </button>
+            <button class="env-button" data-env="alto" onclick="switchEnvironment('alto')">
+                <span class="env-name">Uso Alto</span>
+                <span class="env-desc">Producción - 10M req/mes</span>
+            </button>
+            <button class="env-button" data-env="webtoq" onclick="switchEnvironment('webtoq')">
+                <span class="env-name">Proyección WebToQ</span>
+                <span class="env-desc">1,000 Agentes × 4 Clientes/día</span>
+            </button>
+            <button class="env-button" data-env="burstable" onclick="switchEnvironment('burstable')">
+                <span class="env-name">Burstable (t4g)</span>
+                <span class="env-desc">⚠️ NO Recomendado</span>
+            </button>
+        </div>
+
+        <!-- WebToQ Projection Panel -->
+        <div id="webtoq-panel" class="config-panel" style="display:none;max-width:1200px;margin:0 auto var(--space-32) auto;">
+            <h2 class="panel-title">🎯 Proyección WebToQ - 1,000 Agentes × 4 Clientes/día</h2>
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">📊</span>
+                    <span>Métricas Clave</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-16);">
+                    <div style="background:var(--color-bg-1);padding:var(--space-16);border-radius:var(--radius-base);">
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Sesiones Activas</div>
+                        <div style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-text);">1,750</div>
+                    </div>
+                    <div style="background:var(--color-bg-2);padding:var(--space-16);border-radius:var(--radius-base);">
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Requests/mes</div>
+                        <div style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-text);">12.4M</div>
+                    </div>
+                    <div style="background:var(--color-bg-3);padding:var(--space-16);border-radius:var(--radius-base);">
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Valkey Queries/mes</div>
+                        <div style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-text);">43.4M</div>
+                    </div>
+                    <div style="background:var(--color-bg-4);padding:var(--space-16);border-radius:var(--radius-base);">
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Storage Valkey</div>
+                        <div style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-text);">70 MB</div>
+                    </div>
+                    <div style="background:var(--color-bg-5);padding:var(--space-16);border-radius:var(--radius-base);">
+                        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Conexiones WebSocket</div>
+                        <div style="font-size:var(--font-size-3xl);font-weight:var(--font-weight-bold);color:var(--color-text);">1,750</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">✅</span>
+                    <span>Recomendaciones Específicas</span>
+                </div>
+                <div style="background:var(--color-bg-3);padding:var(--space-20);border-radius:var(--radius-base);border-left:4px solid var(--color-success);">
+                    <ul style="margin:0;padding-left:var(--space-24);color:var(--color-text);line-height:1.8;">
+                        <li><strong>✅ Usar Cluster Valkey (NO Serverless)</strong> - Carga 24/7 sostenida</li>
+                        <li><strong>✅ Implementar Multi-AZ en mes 12</strong> (+$201/mes)</li>
+                        <li><strong>✅ Comprar Reserved Instances en mes 9</strong> (-$60/mes)</li>
+                        <li><strong>✅ Ahorro potencial año 1-3:</strong> $4,500 con RI + optimizaciones</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="service-config" style="border-bottom:none;">
+                <div class="service-title">
+                    <span class="service-icon">📈</span>
+                    <span>Proyección 12 Meses</span>
+                </div>
+                <table class="cost-table" style="font-size:var(--font-size-sm);">
+                    <thead>
+                        <tr>
+                            <th>Período</th>
+                            <th>Agentes</th>
+                            <th>Costo/mes</th>
+                            <th>Características</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mes 1-3</strong></td>
+                            <td>100 agentes</td>
+                            <td class="cost-value cost-low">$150/mes</td>
+                            <td>Setup inicial, Serverless Valkey</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mes 4-6</strong></td>
+                            <td>300 agentes</td>
+                            <td class="cost-value cost-medium">$250/mes</td>
+                            <td>Escalar a db.r6g.large</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mes 7-9</strong></td>
+                            <td>750 agentes</td>
+                            <td class="cost-value cost-medium">$380/mes</td>
+                            <td>Migrar a Cluster Valkey</td>
+                        </tr>
+                        <tr style="background:var(--color-bg-3);">
+                            <td><strong>Mes 10-12</strong></td>
+                            <td>1,000 agentes</td>
+                            <td class="cost-value cost-high">$590/mes</td>
+                            <td>Multi-AZ + Reserved Instances</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2"><strong>TOTAL AÑO 1</strong></td>
+                            <td class="cost-value"><strong>$4,110</strong></td>
+                            <td>Promedio: $342/mes</td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div style="margin-top:var(--space-16);padding:var(--space-16);background:var(--color-bg-2);border-radius:var(--radius-base);">
+                    <p style="margin:0;color:var(--color-text);font-size:var(--font-size-sm);line-height:1.6;">
+                        <strong>💡 Nota:</strong> Esta proyección asume crecimiento gradual. El costo calculado abajo refleja la configuración FINAL (1,000 agentes). Los valores pre-configurados son editables para análisis "what-if".
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Burstable t4g Panel -->
+        <div id="burstable-panel" class="config-panel" style="display:none;max-width:1200px;margin:0 auto var(--space-32) auto;">
+            <h2 class="panel-title" style="color:var(--color-error);">⚠️ Instancia Burstable (t4g.medium) - NO Recomendado</h2>
+            <div style="margin-bottom:var(--space-24);padding:var(--space-20);background:rgba(var(--color-error-rgb),0.08);border:1.5px solid var(--color-error);border-radius:var(--radius-lg);">
+                <strong style="color:var(--color-error);font-size:var(--font-size-lg);display:block;margin-bottom:var(--space-8);">ADVERTENCIA: Instancia Burstable (NO Recomendado para Producción)</strong>
+                <ul style="margin:0 0 var(--space-12) 0;padding-left:var(--space-20);color:var(--color-text);line-height:1.8;">
+                    <li>⚠️ Performance <strong>NO</strong> es garantizado (CPU variable)</li>
+                    <li>Solo recomendado para Dev/Staging, <strong>NO producción WebToQ</strong></li>
+                </ul>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title" style="color:var(--color-error);">
+                    <span class="service-icon">💡</span>
+                    <span>Características cache.t4g.medium</span>
+                </div>
+                <ul style="margin-left:var(--space-24);margin-bottom:var(--space-8);color:var(--color-text);line-height:1.7;">
+                    <li><strong>Instancia:</strong> cache.t4g.medium</li>
+                    <li><strong>Precio:</strong> $37.96/mes ($0.052/hora × 730)</li>
+                    <li><strong>Memoria:</strong> 3.09 GB (suficiente para 70MB caché)</li>
+                    <li><strong>vCPU:</strong> 2 (burstable)</li>
+                    <li><strong>CPU Baseline:</strong> 20% (compartida con créditos)</li>
+                </ul>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title" style="color:var(--color-error);">
+                    <span class="service-icon">⚡</span>
+                    <span>Créditos de CPU y Consumo</span>
+                </div>
+                <ul style="margin-left:var(--space-24);margin-bottom:var(--space-8);color:var(--color-text);line-height:1.7;">
+                    <li><strong>Créditos iniciales:</strong> ~100 créditos</li>
+                    <li><strong>Consumo bajo carga WebToQ:</strong> 2.5 créditos/minuto</li>
+                    <li><strong>Duración con créditos:</strong> ~40 horas/mes = ~4-5 horas/día</li>
+                    <li><strong>Luego:</strong> Instancia entra en THROTTLE (latencia x100)</li>
+                    <li><strong>Estado:</strong> ⚠️ CRÍTICO - Créditos se agotan en mitad del día</li>
+                </ul>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title" style="color:var(--color-error);">
+                    <span class="service-icon">🕑</span>
+                    <span>Latencia proyectada por hora</span>
+                </div>
+                <table class="cost-table" style="font-size:var(--font-size-sm);margin-bottom:var(--space-8);">
+                  <thead>
+                    <tr><th>Hora</th><th>Créditos</th><th>Latencia</th><th>Estado</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>8:00 AM</td><td>100 ✅</td><td>1-5ms</td><td>OK</td></tr>
+                    <tr><td>9:00 AM</td><td>70 ✅</td><td>1-5ms</td><td>OK</td></tr>
+                    <tr><td>10:00 AM</td><td>40 ⚠️</td><td>5-20ms</td><td>Degradando</td></tr>
+                    <tr><td>11:00 AM</td><td>10 ⚠️</td><td>50-100ms</td><td>Crítico</td></tr>
+                    <tr><td>12:00 PM</td><td>0 ❌</td><td>200-500ms</td><td>THROTTLED</td></tr>
+                    <tr><td>1:00 PM</td><td>0 ❌</td><td>200-500ms</td><td>THROTTLED</td></tr>
+                  </tbody>
+                </table>
+                <div class="info-text" style="color:var(--color-error);">Se observa fuerte degradación y THROTTLING después de 4-5 horas de uso continuo cada día.</div>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">📈</span> <span>Gráfico: Degradación de Performance</span>
+                </div>
+                <!-- Chart 1: Cost Breakdown -->
+                <div class="chart-container">
+                  <div class="chart-title">Degradación de Performance en Instancias Burstable</div>
+                  <div class="chart-wrapper" style="height:200px;">
+                      <canvas id="t4gLatencyChart" style="background:var(--color-background);"></canvas>
+                  </div>
+                </div>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">🤝</span> <span>Comparativa r6g.large vs t4g.medium</span>
+                </div>
+                <table class="cost-table" style="font-size:var(--font-size-sm);margin-bottom:var(--space-8);">
+                    <thead>
+                      <tr><th>Métrica</th><th>t4g.medium</th><th>r6g.large</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Costo/Mes</td><td>$37.96</td><td>$146.00</td></tr>
+                      <tr><td>Latencia Normal</td><td>1-5ms</td><td>1-5ms</td></tr>
+                      <tr><td>Latencia Degradada</td><td>200-500ms</td><td>1-5ms (igual)</td></tr>
+                      <tr><td>Performance Garantizado</td><td>❌ NO</td><td>✅ SÍ</td></tr>
+                      <tr><td>Créditos/Mes</td><td>~100</td><td>∞ (sin límite)</td></tr>
+                      <tr><td>Downtime esperado</td><td>SÍ</td><td>NO</td></tr>
+                      <tr><td>Adecuada para Prod</td><td>❌ NO</td><td>✅ SÍ</td></tr>
+                    </tbody>
+                </table>
+                <div style="margin-top:var(--space-8);background:var(--color-bg-4);padding:var(--space-16);border-radius:var(--radius-base);color:var(--color-error);font-weight:var(--font-weight-semibold);">
+                  ❌ Recomendación: NO usar t4g.medium para WebToQ. Solo para dev, testing o staging menor.
+                </div>
+            </div>
+
+            <div class="service-config" style="border-bottom:none;">
+              <div class="service-title"><span class="service-icon">🔎</span><span>Impacto en WebToQ</span></div>
+              <ul style="margin-left:var(--space-24);color:var(--color-text);line-height:1.7;">
+                <li>Primera 4-5h: performance normal ✅</li>
+                <li>Después: performance degrada ⚠️</li>
+                <li>Usuarios ven: timeouts/errores/lentitud ❌</li>
+                <li>Resultado: NO viable para producción (afectaría 1,000 agentes + 4,000 clientes)</li>
+              </ul>
+              <div style="background:var(--color-bg-2);padding:var(--space-16);border-radius:var(--radius-base);margin-top:var(--space-16);color:var(--color-error);font-weight:var(--font-weight-semibold);">
+                  El "ahorro" de $108/mes se pierde en la primera hora de downtime. No recomendado para producción WebToQ.
+              </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Config Panel -->
+            <div class="config-panel">
+                <h2 class="panel-title">⚙️ Configuración de Servicios</h2>
+
+                <!-- RDS Aurora -->
+                <div class="service-config">
+                    <div class="service-title">
+                        <span class="service-icon">🗄️</span>
+                        <span>RDS Aurora PostgreSQL</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Instancia</label>
+                        <select id="rds-instance" class="form-control" onchange="calculateCosts()">
+                            <option value="db.t4g.medium">db.t4g.medium - 2 vCPU, 4 GB RAM ($53.29/mes)</option>
+                            <option value="db.r6g.large">db.r6g.large - 2 vCPU, 16 GB RAM ($201.48/mes)</option>
+                            <option value="db.r6g.xlarge">db.r6g.xlarge - 4 vCPU, 32 GB RAM ($402.96/mes)</option>
+                            <option value="db.r6g.2xlarge">db.r6g.2xlarge - 8 vCPU, 64 GB RAM ($805.92/mes)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="rds-multiaz" onchange="calculateCosts()">
+                        <label for="rds-multiaz">Multi-AZ (Alta disponibilidad - 2x costo)</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Storage (GB)</label>
+                        <input type="number" id="rds-storage" class="form-control" value="50" min="20" max="1000" onchange="calculateCosts()">
+                        <div class="info-text">$0.10 por GB-mes</div>
+                    </div>
+                </div>
+
+                <!-- ElastiCache Valkey Mode -->
+                <div class="service-config">
+                    <div class="service-title">
+                        <span class="service-icon">⚙️</span>
+                        <span>ElastiCache Valkey</span>
+                    </div>
+
+                    <div class="form-group radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="valkey-serverless" name="valkey-type" value="serverless" checked onchange="toggleValkeyConfig()">
+                            <label for="valkey-serverless">
+                                <strong>Serverless</strong> - Escalado automático, pago por uso
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="valkey-cluster" name="valkey-type" value="cluster" onchange="toggleValkeyConfig()">
+                            <label for="valkey-cluster">
+                                <strong>Cluster Tradicional</strong> - Costo fijo, mayor control
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="serverless-config active" id="serverless-options">
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label class="form-label">ECPUs Mínimo</label>
+                                <input type="number" id="valkey-ecpu-min" class="form-control" value="1" min="1" max="50" onchange="calculateCosts()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ECPUs Máximo</label>
+                                <input type="number" id="valkey-ecpu-max" class="form-control" value="5" min="1" max="50" onchange="calculateCosts()">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Storage (GB)</label>
+                            <input type="number" id="valkey-storage" class="form-control" value="0.1" min="0.1" max="100" step="0.1" onchange="calculateCosts()">
+                            <div class="info-text">$0.084 por GB-hora</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Horas de uso diarias</label>
+                            <select id="valkey-hours" class="form-control" onchange="calculateCosts()">
+                                <option value="8">8 horas (horario laboral)</option>
+                                <option value="16" selected>16 horas (extendido)</option>
+                                <option value="24">24 horas (24/7)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cluster-config" id="cluster-options">
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Nodo</label>
+                            <select id="valkey-node-type" class="form-control" onchange="calculateCosts()">
+                                <option value="cache.t4g.medium">cache.t4g.medium ($37.96/mes por nodo) - ⚠️ Burstable</option>
+                                <option value="cache.r7g.large">cache.r7g.large ($146/mes por nodo)</option>
+                                <option value="cache.r7g.xlarge">cache.r7g.xlarge ($292/mes por nodo)</option>
+                                <option value="cache.r7g.2xlarge">cache.r7g.2xlarge ($584/mes por nodo)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cantidad de Nodos</label>
+                            <input type="number" id="valkey-nodes" class="form-control" value="2" min="1" max="10" onchange="calculateCosts()">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="valkey-multiaz" onchange="calculateCosts()">
+                            <label for="valkey-multiaz">Multi-AZ (2x costo)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lambda (Informativo) -->
+                <div class="service-config">
+                    <div class="service-title">
+                        <span class="service-icon">⚡</span>
+                        <span>AWS Lambda</span>
+                    </div>
+                    <div class="info-text">
+                        Costo automático basado en el ambiente seleccionado.<br>
+                        Incluye 51 funciones con diferentes configuraciones de memoria y duración.
+                    </div>
+                </div>
+
+                <!-- API Gateway (Informativo) -->
+                <div class="service-config">
+                    <div class="service-title">
+                        <span class="service-icon">🔌</span>
+                        <span>API Gateway</span>
+                    </div>
+                    <div class="info-text">
+                        Costo automático basado en el ambiente seleccionado.<br>
+                        Incluye: 1 REST API, 7 HTTP APIs, 2 WebSocket APIs.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel">
+                <h2 class="panel-title">📊 Análisis de Costos</h2>
+
+                <div class="chart-container" style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-16);">
+    <div style="flex: 2 1 200px; min-width: 200px; margin-right: var(--space-24); max-width: 350px;">
+        <div class="chart-title">Distribución de Costos por Servicio</div>
+        <div class="chart-wrapper" style="min-width:160px;min-height:220px;height:220px;max-width:350px">
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
+    <div style="flex: 3 1 180px;min-width:180px">
+        <ul id="pie-legend" style="list-style:none;padding:0;margin-top:var(--space-24);display:flex;flex-direction:column;gap:11px;">
+        </ul>
+    </div>
+</div>
+
+<div class="chart-container">
+    <div class="chart-title">Comparación de Valkey: Serverless vs Cluster</div>
+    <div class="chart-wrapper" style="height:140px;min-width:190px;">
+        <svg id="valkey-comparison-svg" viewBox="0 0 340 120" style="width:100%;height:120px;"></svg>
+    </div>
+    <div id="valkey-comparison-table-container" style="margin-top:var(--space-16)"></div>
+</div>
+
+                <table class="cost-table">
+    <thead>
+        <tr>
+            <th>Servicio</th>
+            <th>Configuración</th>
+            <th>Costo/mes</th>
+            <th>% Total</th>
+        </tr>
+    </thead>
+    <tbody id="cost-table-body">
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2"><strong>TOTAL MENSUAL</strong></td>
+            <td class="cost-value" id="total-monthly">$0.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="2"><strong>TOTAL ANUAL</strong></td>
+            <td class="cost-value" id="total-yearly">$0.00</td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Tabla comparativa Instancia RDS -->
+<div id="rds-comparison-table-container" style="margin-bottom:var(--space-24)"></div>
+            </div>
+        </div>
+
+        <div class="recommendations" id="recommendations">
+        </div>
+
+        <!-- Explanatory Analysis Section -->
+        <div class="config-panel" style="max-width:1200px;margin:var(--space-32) auto;">
+            <h2 class="panel-title">📚 Guía de Análisis: Cómo Entender los Costos</h2>
+            
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">🔢</span>
+                    <span>¿Qué significan los "requests por mes"?</span>
+                </div>
+                <p style="margin-bottom:var(--space-12);color:var(--color-text-secondary);line-height:1.6;">
+                    Un <strong>"request"</strong> es cada llamada HTTP a tu API. En el contexto de WebToQ:
+                </p>
+                <ul style="margin-left:var(--space-24);margin-bottom:var(--space-16);color:var(--color-text-secondary);line-height:1.8;">
+                    <li><strong>1 request</strong> = 1 invocación de Lambda + 1 llamada a API Gateway</li>
+                    <li><strong>Ejemplo Base (10K req/mes)</strong>: ~500 sesiones de cliente/agente, ideal para desarrollo</li>
+                    <li><strong>Ejemplo Medio (1M req/mes)</strong>: ~50,000 sesiones mensuales, staging o producción pequeña</li>
+                    <li><strong>Ejemplo Alto (10M req/mes)</strong>: ~500,000 sesiones mensuales, producción alta demanda</li>
+                </ul>
+                <div style="background:var(--color-bg-1);padding:var(--space-16);border-radius:var(--radius-base);margin-top:var(--space-12);">
+                    <p style="margin:0;color:var(--color-text);font-size:var(--font-size-sm);line-height:1.6;">
+                        <strong>💡 Cálculo de usuarios a requests:</strong><br>
+                        100 usuarios × 8 horas/día × 20 días/mes × 5 requests/hora = <strong>80,000 requests/mes</strong><br>
+                        Cada usuario genera múltiples requests al interactuar con chat, autenticación, sincronización, etc.
+                    </p>
+                </div>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">💾</span>
+                    <span>Storage de Valkey: ¿Cuánto necesito?</span>
+                </div>
+                <p style="margin-bottom:var(--space-12);color:var(--color-text-secondary);line-height:1.6;">
+                    El storage en Valkey almacena datos de sesión, tokens, caché de queries frecuentes:
+                </p>
+                <table class="cost-table" style="font-size:var(--font-size-sm);margin-bottom:var(--space-16);">
+                    <thead>
+                        <tr>
+                            <th>Usuarios Activos</th>
+                            <th>Sesiones Concurrentes</th>
+                            <th>Storage Estimado</th>
+                            <th>Escenario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>50-100</td>
+                            <td>10-20</td>
+                            <td>100 MB</td>
+                            <td>Uso Base</td>
+                        </tr>
+                        <tr>
+                            <td>500-1,000</td>
+                            <td>100-200</td>
+                            <td>500 MB</td>
+                            <td>Uso Medio</td>
+                        </tr>
+                        <tr>
+                            <td>5,000-10,000</td>
+                            <td>1,000-2,000</td>
+                            <td>5 GB</td>
+                            <td>Uso Alto</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="background:var(--color-bg-2);padding:var(--space-16);border-radius:var(--radius-base);">
+                    <p style="margin:0;color:var(--color-text);font-size:var(--font-size-sm);line-height:1.6;">
+                        <strong>📊 Fórmula aproximada:</strong> Cada usuario activo consume ~70 KB en caché (sesión + permisos + tokens).<br>
+                        Para 1,000 usuarios: 1,000 × 70 KB = 70 MB base + overhead = <strong>~100-150 MB</strong>
+                    </p>
+                </div>
+            </div>
+
+            <div class="service-config">
+                <div class="service-title">
+                    <span class="service-icon">⚖️</span>
+                    <span>Decisión: ¿Serverless o Cluster tradicional?</span>
+                </div>
+                <p style="margin-bottom:var(--space-12);color:var(--color-text-secondary);line-height:1.6;">
+                    La elección entre Valkey Serverless y Cluster depende del patrón de uso:
+                </p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-16);margin-bottom:var(--space-16);">
+                    <div style="background:var(--color-bg-3);padding:var(--space-16);border-radius:var(--radius-base);border:2px solid var(--color-success);">
+                        <h4 style="margin:0 0 var(--space-8) 0;color:var(--color-success);font-size:var(--font-size-lg);">✓ Elige Serverless si:</h4>
+                        <ul style="margin:var(--space-8) 0 0 var(--space-20);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.7;">
+                            <li>Carga variable o impredecible</li>
+                            <li>Ambiente dev/staging/testing</li>
+                            <li>Uso &lt; 50 ECPUs sostenidos</li>
+                            <li>Presupuesto limitado</li>
+                            <li>No necesitas control fino</li>
+                        </ul>
+                    </div>
+                    <div style="background:var(--color-bg-4);padding:var(--space-16);border-radius:var(--radius-base);border:2px solid var(--color-warning);">
+                        <h4 style="margin:0 0 var(--space-8) 0;color:var(--color-warning);font-size:var(--font-size-lg);">⚡ Elige Cluster si:</h4>
+                        <ul style="margin:var(--space-8) 0 0 var(--space-20);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.7;">
+                            <li>Carga constante 24/7</li>
+                            <li>Producción crítica</li>
+                            <li>Uso &gt; 50 ECPUs continuos</li>
+                            <li>Control fino de recursos</li>
+                            <li>Optimización extrema</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="background:var(--color-bg-5);padding:var(--space-16);border-radius:var(--radius-base);">
+                    <p style="margin:0;color:var(--color-text);font-size:var(--font-size-sm);line-height:1.6;">
+                        <strong>💰 Break-even point:</strong> Serverless gana hasta ~$150/mes. Para cargas mayores sostenidas, Cluster puede ser más económico.<br/>
+                        <strong>Recomendación WebToQ:</strong> Usa Serverless para dev/staging, evalúa Cluster solo en producción con &gt; 100K sesiones/mes.
+                    </p>
+                </div>
+            </div>
+
+            <div class="service-config" style="border-bottom:none;">
+                <div class="service-title">
+                    <span class="service-icon">🎯</span>
+                    <span>Próximos Pasos: Implementación por Fases</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:var(--space-12);">
+                    <div style="background:var(--color-bg-1);padding:var(--space-16);border-radius:var(--radius-base);border-left:4px solid var(--color-primary);">
+                        <h4 style="margin:0 0 var(--space-8) 0;color:var(--color-text);font-size:var(--font-size-base);">Fase 1: Dev (mes 1-2)</h4>
+                        <p style="margin:0;color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.6;">
+                            • RDS db.t4g.medium<br>
+                            • Valkey Serverless mínimo<br>
+                            • Sin Multi-AZ<br>
+                            <strong style="color:var(--color-success);">~$80-120/mes</strong>
+                        </p>
+                    </div>
+                    <div style="background:var(--color-bg-2);padding:var(--space-16);border-radius:var(--radius-base);border-left:4px solid var(--color-warning);">
+                        <h4 style="margin:0 0 var(--space-8) 0;color:var(--color-text);font-size:var(--font-size-base);">Fase 2: Staging (mes 3-4)</h4>
+                        <p style="margin:0;color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.6;">
+                            • RDS db.r6g.large<br>
+                            • Valkey Serverless medio<br>
+                            • Considerar Multi-AZ<br>
+                            <strong style="color:var(--color-warning);">~$250-350/mes</strong>
+                        </p>
+                    </div>
+                    <div style="background:var(--color-bg-3);padding:var(--space-16);border-radius:var(--radius-base);border-left:4px solid var(--color-success);">
+                        <h4 style="margin:0 0 var(--space-8) 0;color:var(--color-text);font-size:var(--font-size-base);">Fase 3: Producción (mes 5+)</h4>
+                        <p style="margin:0;color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.6;">
+                            • RDS db.r6g.xlarge Multi-AZ<br>
+                            • Evaluar Valkey según carga<br>
+                            • Reserved Instances<br>
+                            <strong style="color:var(--color-error);">~$600-900/mes</strong>
+                        </p>
+                    </div>
+                    <div style="background:var(--color-bg-4);padding:var(--space-16);border-radius:var(--radius-base);border-left:4px solid var(--color-error);">
+                        <h4 style="margin:0 0 var(--space-8) 0;color:var(--color-text);font-size:var(--font-size-base);">Fase 4: Optimización</h4>
+                        <p style="margin:0;color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.6;">
+                            • Análisis de métricas reales<br>
+                            • Right-sizing continuo<br>
+                            • Savings Plans<br>
+                            <strong style="color:var(--color-primary);">Ahorro 20-40%</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <button class="export-button" onclick="exportAnalysis()">📥 Exportar Análisis (CSV)</button>
+            <div class="footer-info">
+                Precios actualizados al 27 de Noviembre 2025 - Región us-east-1<br>
+                <a href="https://aws.amazon.com/pricing/" target="_blank" class="footer-link">Ver documentación oficial de AWS</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    // Wait for Chart.js to load
+    if (typeof Chart === 'undefined') {
+      console.error('Chart.js failed to load');
+    }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
