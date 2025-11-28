@@ -89,6 +89,11 @@ function calculate() {
   // Determine infrastructure tier
   const tier = determineInfrastructureTier(agentCount, requestsPerMonth, concurrentPeak);
   
+  console.log('=== Infrastructure Calculator ===');
+  console.log('Agents:', agentCount);
+  console.log('Tier:', tier);
+  console.log('Requests/month:', requestsPerMonth);
+  
   // Calculate costs
   const costs = calculateCosts(tier, requestsPerMonth, valkeyStorageGB, sessionsPerMonth, agentCount);
   
@@ -103,13 +108,16 @@ function calculate() {
 }
 
 function determineInfrastructureTier(agents, requests, concurrent) {
-  if (agents <= 100 || requests < 1000000) {
+  // Priorizar número de agentes sobre requests para determinar tier
+  if (agents <= 20) {
+    return 'micro';
+  } else if (agents <= 100) {
     return 'starter';
-  } else if (agents <= 500 || requests < 5000000) {
+  } else if (agents <= 500) {
     return 'small';
-  } else if (agents <= 1500 || requests < 15000000) {
+  } else if (agents <= 2000) {
     return 'medium';
-  } else if (agents <= 5000 || requests < 50000000) {
+  } else if (agents <= 5000) {
     return 'large';
   } else {
     return 'enterprise';
@@ -132,6 +140,10 @@ function calculateCosts(tier, requests, valkeyStorageGB, sessions, agents) {
   let rdsConfig = {};
   let rdsStorageGB = 50;
   switch(tier) {
+    case 'micro':
+      rdsConfig = { instance: 'db.t4g.medium', multiAz: false };
+      rdsStorageGB = 30;
+      break;
     case 'starter':
       rdsConfig = { instance: 'db.t4g.medium', multiAz: false };
       rdsStorageGB = 50;
@@ -161,40 +173,50 @@ function calculateCosts(tier, requests, valkeyStorageGB, sessions, agents) {
   
   // Valkey
   let valkeyConfig = {};
-  const useServerless = tier === 'starter' || tier === 'small';
   
-  if (useServerless) {
-    // Serverless
-    const ecpuMin = tier === 'starter' ? 1 : 5;
-    const ecpuMax = tier === 'starter' ? 5 : 15;
-    const avgEcpu = (ecpuMin + ecpuMax) / 2;
-    const hoursPerDay = tier === 'starter' ? 8 : 16;
-    const hoursPerMonth = (hoursPerDay / 24) * 730;
+  if (tier === 'micro') {
+    // 5-20 agentes: Serverless $20-80/mes
+    const ecpuMin = 0.5;
+    const ecpuMax = 2;
+    const avgEcpuUsage = 0.0001; // Muy bajo
     
     costs.valkey = (valkeyStorageGB * pricing.valkey.serverless.storagePerGbHour * 730) +
-                   (avgEcpu * pricing.valkey.serverless.ecpuPerHour * hoursPerMonth);
-    valkeyConfig = { type: 'Serverless', ecpu: `${ecpuMin}-${ecpuMax}`, hours: hoursPerDay };
+                   (avgEcpuUsage * 500000); // ~$20-40/mes
+    valkeyConfig = { type: 'Serverless', ecpu: `${ecpuMin}-${ecpuMax}`, range: '5-20 agentes' };
+  } else if (tier === 'starter') {
+    // 20-100 agentes: Serverless $80-400/mes
+    const ecpuMin = 1;
+    const ecpuMax = 5;
+    const avgEcpuUsage = 0.001; // Moderado
+    
+    costs.valkey = (valkeyStorageGB * pricing.valkey.serverless.storagePerGbHour * 730) +
+                   (avgEcpuUsage * 2000000); // ~$80-200/mes
+    valkeyConfig = { type: 'Serverless', ecpu: `${ecpuMin}-${ecpuMax}`, range: '20-100 agentes' };
+  } else if (tier === 'small') {
+    // 100-500 agentes: OPCIÓN 1 cache.r7g.large es más económico
+    costs.valkey = pricing.valkey['cache.r7g.large'].monthly;
+    valkeyConfig = { type: 'Cluster', instance: 'cache.r7g.large', multiAz: false, range: '100-500 agentes', note: 'Más económico que Serverless' };
   } else {
-    // Cluster
+    // Cluster para tier medium, large, enterprise
     let instance = '';
     let multiAz = false;
     switch(tier) {
       case 'medium':
         instance = 'cache.r7g.large';
-        multiAz = false;
+        multiAz = true;
         break;
       case 'large':
-        instance = 'cache.r7g.large';
+        instance = 'cache.r7g.xlarge';
         multiAz = true;
         break;
       case 'enterprise':
-        instance = 'cache.r7g.xlarge';
+        instance = 'cache.r7g.2xlarge';
         multiAz = true;
         break;
     }
     costs.valkey = pricing.valkey[instance].monthly;
     if (multiAz) costs.valkey *= 2;
-    valkeyConfig = { type: 'Cluster', instance, multiAz };
+    valkeyConfig = { type: 'Cluster', instance, multiAz, range: tier === 'medium' ? '500-2000' : tier === 'large' ? '2000-5000' : '5000+' };
   }
   costs.valkeyConfig = valkeyConfig;
   
@@ -238,6 +260,23 @@ function calculateCosts(tier, requests, valkeyStorageGB, sessions, agents) {
 function displayInfrastructure(tier, costs) {
   const tbody = document.getElementById('infrastructure-table');
   
+  console.log('=== Display Infrastructure ===');
+  console.log('Tier:', tier);
+  console.log('RDS Config:', costs.rdsConfig);
+  console.log('Valkey Config:', costs.valkeyConfig);
+  
+  // Añadir badge de tier
+  const tierBadges = {
+    'micro': '<span class="badge badge-success">Micro (5-20 agentes)</span>',
+    'starter': '<span class="badge badge-success">Starter (20-100 agentes)</span>',
+    'small': '<span class="badge badge-success">Small (100-500 agentes)</span>',
+    'medium': '<span class="badge badge-warning">Medium (500-2000 agentes)</span>',
+    'large': '<span class="badge badge-error">Large (2000-5000 agentes)</span>',
+    'enterprise': '<span class="badge badge-error">Enterprise (5000+ agentes)</span>'
+  };
+  
+  const tierBadge = tierBadges[tier] || '';
+  
   const services = [
     {
       name: '⚡ AWS Lambda',
@@ -255,17 +294,19 @@ function displayInfrastructure(tier, costs) {
       name: '🗄️ RDS Aurora PostgreSQL',
       config: `${costs.rdsConfig.instance}${costs.rdsConfig.multiAz ? ' Multi-AZ' : ''} + ${costs.rdsStorage}GB storage`,
       cost: costs.rds,
-      justification: costs.rdsConfig.multiAz ? 'Alta disponibilidad requerida' : 'Base de datos relacional principal'
+      justification: costs.rdsConfig.multiAz ? 'Alta disponibilidad requerida' : 'Base de datos relacional principal',
+      tier: tierBadge
     },
     {
       name: '⚙️ ElastiCache Valkey',
       config: costs.valkeyConfig.type === 'Serverless' ? 
-        `Serverless ${costs.valkeyConfig.ecpu} ECPUs, ${costs.valkeyConfig.hours}h/día` :
+        `Serverless ${costs.valkeyConfig.ecpu} ECPUs (24/7 sin throttling)` :
         `${costs.valkeyConfig.instance}${costs.valkeyConfig.multiAz ? ' Multi-AZ' : ''}`,
       cost: costs.valkey,
       justification: costs.valkeyConfig.type === 'Serverless' ? 
-        'Cache escalable para dev/staging' : 
-        'Cache de alta performance para producción'
+        '24/7 disponibilidad, escalado automático' : 
+        'Cache de alta performance para producción',
+      tier: costs.valkeyConfig.range ? `<span class="badge" style="background:var(--color-primary);color:var(--color-bg);">${costs.valkeyConfig.range}</span>` : ''
     },
     {
       name: '🌐 VPC NAT Gateway',
@@ -303,7 +344,10 @@ function displayInfrastructure(tier, costs) {
   services.forEach(service => {
     html += `
       <tr>
-        <td><strong>${service.name}</strong></td>
+        <td>
+          <strong>${service.name}</strong>
+          ${service.tier ? '<br>' + service.tier : ''}
+        </td>
         <td>${service.config}</td>
         <td style="font-weight:600;font-family:var(--font-family-mono);">$${service.cost.toFixed(2)}</td>
         <td style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">${service.justification}</td>
@@ -376,55 +420,74 @@ function displayRecommendations(agents, tier, costs) {
   let html = '<div class="config-panel"><h2 class="panel-title">🎯 Recomendaciones Personalizadas</h2>';
   
   // Tier-specific recommendations
-  if (tier === 'starter') {
+  if (tier === 'micro') {
     html += `
       <div class="recommendation-card">
-        <div class="recommendation-title">🚀 Ambiente Starter (${agents} agentes)<span class="badge badge-success">Óptimo para Dev/Testing</span></div>
+        <div class="recommendation-title">🌱 Ambiente Micro (${agents} agentes)<span class="badge badge-success">Desarrollo/Piloto</span></div>
         <p style="color:var(--color-text);line-height:1.8;margin:0;">
-          Con ${agents.toLocaleString()} agentes, estás en un tier de desarrollo ideal. Recomendaciones:<br><br>
-          <strong>✅ Usa Serverless</strong> - Valkey Serverless es perfecto para esta escala.<br>
-          <strong>✅ db.t4g.medium</strong> - Suficiente para testing, actualiza a r6g.large cuando escales.<br>
-          <strong>💡 Optimización:</strong> Implementa caching agresivo en Valkey para reducir queries a RDS.<br>
-          <strong>📈 Siguiente paso:</strong> Cuando llegues a 500+ agentes, considera migrar a tier Small.
+          Con ${agents.toLocaleString()} agentes, estás en fase de desarrollo/piloto:<br><br>
+          <strong>✅ Valkey SERVERLESS ($20-80/mes)</strong> - Perfecto para esta escala, 24/7 sin throttling.<br>
+          <strong>✅ db.t4g.medium</strong> - RDS suficiente para pruebas iniciales.<br>
+          <strong>💡 Ventaja:</strong> Pay-per-use con Serverless, solo pagas por lo que usas.<br>
+          <strong>⚡ Performance:</strong> 1-5ms latencia constante, cold starts <100ms.<br>
+          <strong>📈 Siguiente paso:</strong> Al llegar a 20+ agentes, Serverless escala automáticamente.
+        </p>
+      </div>
+    `;
+  } else if (tier === 'starter') {
+    html += `
+      <div class="recommendation-card">
+        <div class="recommendation-title">🚀 Ambiente Starter (${agents} agentes)<span class="badge badge-success">Pre-Producción</span></div>
+        <p style="color:var(--color-text);line-height:1.8;margin:0;">
+          Con ${agents.toLocaleString()} agentes, estás listo para pre-producción:<br><br>
+          <strong>✅ Valkey SERVERLESS ($80-400/mes)</strong> - Escala automático según carga real.<br>
+          <strong>⚠️ NO uses t4g.medium:</strong> Se queda sin CPU credits en 4-5 horas → Downtime diario.<br>
+          <strong>✅ db.t4g.medium</strong> - Suficiente para RDS, actualiza a r6g.large al llegar a 100+.<br>
+          <strong>💡 Clave:</strong> Serverless garantiza 1-5ms latencia constante vs 200-500ms throttled en t4g.<br>
+          <strong>💰 ROI:</strong> Serverless ~$150/mes vs t4g $7,288/mes (con downtime loss).<br>
+          <strong>📈 Siguiente paso:</strong> Al llegar a 100+ agentes, migra a cache.r7g.large ($146/mes fijo).
         </p>
       </div>
     `;
   } else if (tier === 'small') {
     html += `
       <div class="recommendation-card">
-        <div class="recommendation-title">📈 Ambiente Small (${agents} agentes)<span class="badge badge-success">Pre-Producción</span></div>
+        <div class="recommendation-title">📊 Ambiente Small (${agents} agentes)<span class="badge badge-success">Producción Estándar</span></div>
         <p style="color:var(--color-text);line-height:1.8;margin:0;">
-          Con ${agents.toLocaleString()} agentes, estás listo para staging/pre-producción:<br><br>
-          <strong>✅ db.r6g.large</strong> - Buen balance costo/performance.<br>
-          <strong>✅ Valkey Serverless</strong> - Todavía económico para este volumen.<br>
-          <strong>💡 Monitorea:</strong> Si carga es 24/7, considera Cluster Valkey.<br>
-          <strong>📈 Siguiente paso:</strong> A 1,500+ agentes, implementa Multi-AZ para alta disponibilidad.
+          Con ${agents.toLocaleString()} agentes, estás en producción sólida:<br><br>
+          <strong>✅ cache.r7g.large ($146/mes)</strong> - MEJOR opción que Serverless ($400-1000/mes).<br>
+          <strong>✅ db.r6g.large</strong> - Potencia necesaria para este volumen.<br>
+          <strong>💰 Ahorro:</strong> Cluster r7g.large es 3-7x más barato que Serverless para carga constante.<br>
+          <strong>💡 Alternativa:</strong> Si tu carga es muy intermitente (<8h/día), considera Serverless.<br>
+          <strong>🔒 Considera Multi-AZ:</strong> Al acercarte a 500 agentes para alta disponibilidad.<br>
+          <strong>📈 Siguiente paso:</strong> A 500+ agentes, migra a r7g.xlarge + Multi-AZ.
         </p>
       </div>
     `;
   } else if (tier === 'medium') {
     html += `
       <div class="recommendation-card">
-        <div class="recommendation-title">🎯 Ambiente Medium (${agents} agentes)<span class="badge badge-success">Producción Estándar</span></div>
+        <div class="recommendation-title">🎯 Ambiente Medium (${agents} agentes)<span class="badge badge-warning">Alta Demanda</span></div>
         <p style="color:var(--color-text);line-height:1.8;margin:0;">
-          Con ${agents.toLocaleString()} agentes, estás en producción sólida:<br><br>
-          <strong>✅ RDS Multi-AZ</strong> - Alta disponibilidad esencial en producción.<br>
-          <strong>✅ Valkey Cluster cache.r7g.large</strong> - Mejor que Serverless para carga sostenida.<br>
-          <strong>💡 Considera Reserved Instances:</strong> Ahorra 30-40% con compromiso de 1 año.<br>
+          Con ${agents.toLocaleString()} agentes, necesitas infraestructura robusta:<br><br>
+          <strong>✅ cache.r7g.large Multi-AZ ($292/mes)</strong> - Alta disponibilidad crítica.<br>
+          <strong>✅ db.r6g.large Multi-AZ</strong> - Redundancia esencial para producción.<br>
+          <strong>💰 Reserved Instances RECOMENDADO:</strong> Ahorra 30-40% ($100-150/mes).<br>
           <strong>📊 Monitorea:</strong> CloudWatch dashboards para detectar cuellos de botella.<br>
-          <strong>🔐 Seguridad:</strong> Implementa AWS WAF en API Gateway.
+          <strong>🔐 Seguridad:</strong> Implementa AWS WAF en API Gateway.<br>
+          <strong>📈 Siguiente paso:</strong> A 2000+ agentes, migra a r7g.xlarge.
         </p>
       </div>
     `;
   } else if (tier === 'large') {
     html += `
       <div class="recommendation-card">
-        <div class="recommendation-title">🔥 Ambiente Large (${agents} agentes)<span class="badge badge-warning">Alta Demanda</span></div>
+        <div class="recommendation-title">🔥 Ambiente Large (${agents} agentes)<span class="badge badge-error">Enterprise</span></div>
         <p style="color:var(--color-text);line-height:1.8;margin:0;">
           Con ${agents.toLocaleString()} agentes, necesitas infraestructura enterprise:<br><br>
+          <strong>✅ cache.r7g.xlarge Multi-AZ ($584/mes)</strong> - Capacidad enterprise.<br>
           <strong>✅ db.r6g.xlarge Multi-AZ</strong> - Potencia necesaria para este volumen.<br>
-          <strong>✅ Valkey Multi-AZ</strong> - Redundancia crítica para cache.<br>
-          <strong>💰 Reserved Instances OBLIGATORIO:</strong> Ahorra $200-400/mes.<br>
+          <strong>💰 Reserved Instances OBLIGATORIO:</strong> Ahorra $250-500/mes.<br>
           <strong>📊 Auto-scaling:</strong> Configura Lambda concurrency limits y DB read replicas.<br>
           <strong>🔍 APM:</strong> Implementa AWS X-Ray para tracing distribuido.<br>
           <strong>💾 Backups:</strong> Daily snapshots automáticos de RDS y S3.
@@ -487,6 +550,17 @@ function displayRecommendations(agents, tier, costs) {
           '⚠️ Considera optimizaciones antes de escalar'
         }
       </p>
+    </div>
+    
+    <div class="recommendation-card" style="background:var(--color-bg-1);">
+      <div class="recommendation-title">📈 Guía de Escalamiento por Agentes</div>
+      <div style="font-family:var(--font-family-mono);font-size:var(--font-size-sm);line-height:2;color:var(--color-text);">
+        <strong>5-20 agentes</strong> → ElastiCache Serverless ($20-80/mes) ✅<br>
+        <strong>20-100 agentes</strong> → ElastiCache Serverless ($80-400/mes) ✅<br>
+        <strong>100-500 agentes</strong> → cache.r7g.large ($146/mes) ✅<br>
+        <strong>500-2000 agentes</strong> → cache.r7g.xlarge Multi-AZ ($584/mes) ✅<br>
+        <strong>2000+ agentes</strong> → cache.r7g.2xlarge + Reserved Instances 📈
+      </div>
     </div>
   `;
   
