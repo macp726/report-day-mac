@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebToQ Agent Calculator - Planificador de Infraestructura</title>
+    <style>
+        :root {
+  /* Primitive Color Tokens */
+  --color-white: rgba(255, 255, 255, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-cream-50: rgba(252, 252, 249, 1);
+  --color-cream-100: rgba(255, 255, 253, 1);
+  --color-gray-200: rgba(245, 245, 245, 1);
+  --color-gray-300: rgba(167, 169, 169, 1);
+  --color-gray-400: rgba(119, 124, 124, 1);
+  --color-slate-500: rgba(98, 108, 113, 1);
+  --color-brown-600: rgba(94, 82, 64, 1);
+  --color-charcoal-700: rgba(31, 33, 33, 1);
+  --color-charcoal-800: rgba(38, 40, 40, 1);
+  --color-slate-900: rgba(19, 52, 59, 1);
+  --color-teal-300: rgba(50, 184, 198, 1);
+  --color-teal-400: rgba(45, 166, 178, 1);
+  --color-teal-500: rgba(33, 128, 141, 1);
+  --color-teal-600: rgba(29, 116, 128, 1);
+  --color-teal-700: rgba(26, 104, 115, 1);
+  --color-teal-800: rgba(41, 150, 161, 1);
+  --color-red-400: rgba(255, 84, 89, 1);
+  --color-red-500: rgba(192, 21, 47, 1);
+  --color-orange-400: rgba(230, 129, 97, 1);
+  --color-orange-500: rgba(168, 75, 47, 1);
+
+  --color-brown-600-rgb: 94, 82, 64;
+  --color-teal-500-rgb: 33, 128, 141;
+  --color-slate-900-rgb: 19, 52, 59;
+  --color-slate-500-rgb: 98, 108, 113;
+  --color-red-500-rgb: 192, 21, 47;
+  --color-red-400-rgb: 255, 84, 89;
+  --color-orange-500-rgb: 168, 75, 47;
+  --color-orange-400-rgb: 230, 129, 97;
+
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+
+  --color-background: var(--color-cream-50);
+  --color-surface: var(--color-cream-100);
+  --color-text: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-500);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-600);
+  --color-success: var(--color-teal-500);
+  --color-error: var(--color-red-500);
+  --color-warning: var(--color-orange-500);
+  --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--color-charcoal-700);
+    --color-surface: var(--color-charcoal-800);
+    --color-text: var(--color-gray-200);
+    --color-text-secondary: rgba(167, 169, 169, 0.7);
+    --color-primary: var(--color-teal-300);
+    --color-success: var(--color-teal-300);
+    --color-error: var(--color-red-400);
+    --color-warning: var(--color-orange-400);
+    --color-border: rgba(119, 124, 124, 0.3);
+    --color-card-border: rgba(119, 124, 124, 0.2);
+  }
+}
+
+@font-face {
+  font-family: 'FKGroteskNeue';
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  min-height: 100vh;
+  padding: var(--space-24);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-32);
+  padding-bottom: var(--space-24);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-8);
+}
+
+.header p {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+}
+
+.config-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-24);
+}
+
+.panel-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-20);
+  color: var(--color-text);
+}
+
+.form-group {
+  margin-bottom: var(--space-16);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-6);
+  color: var(--color-text);
+}
+
+.form-control {
+  width: 100%;
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
+}
+
+.info-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin-top: var(--space-4);
+}
+
+.slider-container {
+  padding: var(--space-12) 0;
+}
+
+.slider {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  border: none;
+}
+
+.metric-display {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  text-align: center;
+  margin: var(--space-8) 0;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-24);
+}
+
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  text-align: center;
+  padding: var(--space-20);
+  background: var(--color-background);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-card-border);
+}
+
+.stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.stat-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.stat-sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-4);
+}
+
+.cost-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-24);
+  font-size: var(--font-size-sm);
+}
+
+.cost-table thead {
+  background: var(--color-bg-1);
+}
+
+.cost-table th {
+  padding: var(--space-12);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.cost-table td {
+  padding: var(--space-10) var(--space-12);
+  border-bottom: 1px solid var(--color-card-border);
+}
+
+.cost-table tfoot {
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-bg-2);
+}
+
+.cost-table tfoot td {
+  padding: var(--space-12);
+  border-top: 2px solid var(--color-border);
+}
+
+.recommendation-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-20);
+  margin-bottom: var(--space-16);
+}
+
+.recommendation-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-12);
+}
+
+.badge {
+  display: inline-block;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  margin-left: var(--space-8);
+}
+
+.badge-success {
+  background: rgba(var(--color-teal-500-rgb), 0.15);
+  color: var(--color-success);
+}
+
+.badge-warning {
+  background: rgba(var(--color-orange-500-rgb), 0.15);
+  color: var(--color-warning);
+}
+
+.badge-error {
+  background: rgba(var(--color-red-500-rgb), 0.15);
+  color: var(--color-error);
+}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>🎯 WebToQ Agent Calculator</h1>
+            <p>Planificador de Infraestructura AWS basado en Cantidad de Agentes</p>
+            <div style="margin-top:var(--space-12);">
+                <a href="index.html" style="color:var(--color-primary);text-decoration:none;font-size:var(--font-size-sm);">← Volver al Analizador de Costos</a>
+            </div>
+        </header>
+
+        <!-- Input Panel -->
+        <div class="config-panel">
+            <h2 class="panel-title">📊 Configuración de tu Operación</h2>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">👥 Cantidad de Agentes</label>
+                    <input type="range" id="agent-count" class="slider" min="10" max="10000" step="10" value="1000" oninput="calculate()">
+                    <div class="metric-display" id="agent-display">1,000</div>
+                    <div class="info-text">Número de agentes que usarán WebToQ simultáneamente</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">👤 Clientes por Agente/día</label>
+                    <input type="range" id="clients-per-agent" class="slider" min="1" max="20" step="1" value="4" oninput="calculate()">
+                    <div class="metric-display" id="clients-display">4</div>
+                    <div class="info-text">Promedio de clientes atendidos por agente diariamente</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">📅 Días Laborables/mes</label>
+                    <input type="range" id="work-days" class="slider" min="15" max="30" step="1" value="22" oninput="calculate()">
+                    <div class="metric-display" id="days-display">22</div>
+                    <div class="info-text">Días de operación mensual (típico: 20-22)</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">⏱️ Duración Promedio de Sesión (min)</label>
+                    <input type="range" id="session-duration" class="slider" min="5" max="60" step="5" value="20" oninput="calculate()">
+                    <div class="metric-display" id="duration-display">20</div>
+                    <div class="info-text">Tiempo promedio de chat cliente-agente</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="config-panel">
+            <h2 class="panel-title">📈 Proyección de Carga</h2>
+            
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-16);margin-bottom:var(--space-24);">
+                <div class="stat-card">
+                    <div class="stat-label">Sesiones/mes</div>
+                    <div class="stat-value" id="sessions-month">88,000</div>
+                    <div class="stat-sub" id="sessions-day">~2,933/día</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Requests/mes</div>
+                    <div class="stat-value" id="requests-month">9.9M</div>
+                    <div class="stat-sub">API Gateway + Lambda</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Conexiones Pico</div>
+                    <div class="stat-value" id="concurrent-connections">1,400</div>
+                    <div class="stat-sub">WebSocket simultáneos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Storage Valkey</div>
+                    <div class="stat-value" id="valkey-storage">56 MB</div>
+                    <div class="stat-sub">Sesiones + caché activo</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infrastructure Recommendations -->
+        <div class="config-panel">
+            <h2 class="panel-title">🏗️ Infraestructura Recomendada</h2>
+            
+            <table class="cost-table">
+                <thead>
+                    <tr>
+                        <th>Servicio AWS</th>
+                        <th>Configuración Recomendada</th>
+                        <th>Costo/mes</th>
+                        <th>Justificación</th>
+                    </tr>
+                </thead>
+                <tbody id="infrastructure-table">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2"><strong>TOTAL MENSUAL</strong></td>
+                        <td id="total-cost">$0.00</td>
+                        <td id="total-yearly"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Cost Analysis -->
+        <div class="config-panel">
+            <h2 class="panel-title">💰 Análisis de Costos</h2>
+            
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:var(--space-16);margin-bottom:var(--space-24);">
+                <div class="stat-card" style="background:var(--color-bg-3);border-color:var(--color-success);">
+                    <div class="stat-label">Costo por Agente/mes</div>
+                    <div class="stat-value" style="color:var(--color-success);" id="cost-per-agent">$0.00</div>
+                    <div class="stat-sub">Infraestructura completa</div>
+                </div>
+                <div class="stat-card" style="background:var(--color-bg-1);">
+                    <div class="stat-label">Costo por Sesión</div>
+                    <div class="stat-value" id="cost-per-session">$0.00</div>
+                    <div class="stat-sub">Por interacción cliente</div>
+                </div>
+                <div class="stat-card" style="background:var(--color-bg-2);">
+                    <div class="stat-label">Margen si cobras $5/agente</div>
+                    <div class="stat-value" id="margin-percentage">0%</div>
+                    <div class="stat-sub" id="margin-amount">$0/mes ganancia</div>
+                </div>
+            </div>
+
+            <div id="cost-insights"></div>
+        </div>
+
+        <!-- Scaling Recommendations -->
+        <div id="recommendations-container"></div>
+
+        <!-- Footer -->
+        <footer style="text-align:center;padding:var(--space-24);border-top:1px solid var(--color-border);margin-top:var(--space-32);color:var(--color-text-secondary);font-size:var(--font-size-sm);">
+            Precios actualizados al 27 de Noviembre 2025 - Región us-east-1<br>
+            <a href="index.html" style="color:var(--color-primary);text-decoration:none;">Ver Analizador de Costos Detallado</a>
+        </footer>
+    </div>
+
+    <script src="agent-calculator.js"></script>
+</body>
+</html>
