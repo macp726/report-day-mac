@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Desarrollo de Software con IA</title>
+    <style>
+        :root {
+            --color-primary: #208096;
+            --color-secondary: #5e5240;
+            --color-accent: #ff5459;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-text: #134252;
+            --color-text-light: #626c71;
+            --color-border: #d8d4c8;
+            --radius: 8px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--color-bg) 0%, #f0ebe4 100%);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--color-text-light);
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--color-border);
+            background: var(--color-surface);
+            color: var(--color-text);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            background: var(--color-surface);
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .section h2 {
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .section h3 {
+            color: var(--color-secondary);
+            margin: 20px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .card h4 {
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .card p {
+            color: var(--color-text-light);
+            font-size: 0.95em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .comparison-table th {
+            background: var(--color-primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .comparison-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+
+        .badge-tool {
+            background: rgba(32, 128, 150, 0.15);
+            color: var(--color-primary);
+        }
+
+        .badge-role {
+            background: rgba(255, 84, 89, 0.15);
+            color: var(--color-accent);
+        }
+
+        .badge-feature {
+            background: rgba(94, 82, 64, 0.15);
+            color: var(--color-secondary);
+        }
+
+        .prd-structure {
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+            padding: 25px;
+            border-radius: var(--radius);
+            border: 2px dashed var(--color-primary);
+            margin: 20px 0;
+        }
+
+        .prd-item {
+            margin: 15px 0;
+            padding-left: 25px;
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .prd-item strong {
+            color: var(--color-primary);
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: var(--color-primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .flow-arrow {
+            font-size: 1.5em;
+            color: var(--color-primary);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(32, 128, 150, 0.1) 0%, rgba(32, 128, 150, 0.05) 100%);
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--color-primary);
+            margin: 20px 0;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 15px;
+            border-radius: var(--radius);
+        }
+
+        .pros {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 4px solid #22c55e;
+        }
+
+        .cons {
+            background: rgba(255, 84, 89, 0.1);
+            border-left: 4px solid var(--color-accent);
+        }
+
+        .pros h4, .cons h4 {
+            margin-top: 0;
+        }
+
+        .pros h4 {
+            color: #22c55e;
+        }
+
+        .cons h4 {
+            color: var(--color-accent);
+        }
+
+        .copilot-steps {
+            background: linear-gradient(135deg, rgba(255, 84, 89, 0.08) 0%, rgba(32, 128, 150, 0.08) 100%);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 2px solid var(--color-accent);
+            margin: 20px 0;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--color-accent);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .copilot-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 15px;
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            border-left: 4px solid var(--color-accent);
+        }
+
+        .copilot-step h4 {
+            margin: 0 0 10px 0;
+            color: var(--color-accent);
+            font-size: 1.1em;
+        }
+
+        .copilot-step p {
+            margin: 0;
+            color: var(--color-text-light);
+        }
+
+        .mode-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .mode-card {
+            background: var(--color-surface);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 2px solid var(--color-border);
+            border-top: 4px solid var(--color-primary);
+        }
+
+        .mode-card h4 {
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+
+        .mode-card ul {
+            margin-left: 20px;
+            color: var(--color-text-light);
+            font-size: 0.9em;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--color-text-light);
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .mode-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Guía de Desarrollo de Software con IA</h1>
+            <p>Metodología, herramientas y mejores prácticas para 2026</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('arquitectura')">Arquitectura vs Agile</button>
+            <button class="tab-btn" onclick="switchTab('herramientas')">Herramientas IA</button>
+            <button class="tab-btn" onclick="switchTab('prd')">PRD</button>
+            <button class="tab-btn" onclick="switchTab('flujo')">Flujo de Trabajo</button>
+            <button class="tab-btn" onclick="switchTab('copilot')">Flujo Copilot</button>
+            <button class="tab-btn" onclick="switchTab('mejores')">Mejores Prácticas</button>
+        </div>
+
+        <!-- Tab: Arquitectura vs Agile -->
+        <div id="arquitectura" class="tab-content active">
+            <div class="section">
+                <h2>📐 Arquitectura es el Nuevo Agile</h2>
+                <p>Después de años de iteraciones ágiles rápidas, la industria regresa al enfoque arquitectónico. La arquitectura proporciona la base sólida necesaria para sistemas escalables.</p>
+
+                <h3>¿Por qué Arquitectura?</h3>
+                <ul>
+                    <li><strong>Escalabilidad a largo plazo:</strong> Decisiones fundamentales evitan deuda técnica</li>
+                    <li><strong>Mantenibilidad:</strong> Diseño claro reduce costos de mantenimiento</li>
+                    <li><strong>Reutilización:</strong> Componentes bien diseñados se reutilizan</li>
+                    <li><strong>Integración de IA:</strong> Arquitectura pensada para IA desde el inicio</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>💡 Clave:</strong> La arquitectura no reemplaza Agile, sino que lo complementa. Arquitectura define "qué" y "cómo", Agile define "cuándo".
+                </div>
+
+                <h3>Componentes Esenciales de Arquitectura</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>🔧 Arquitectura de Capas</h4>
+                        <p>Separación clara entre presentación, lógica y datos. Facilita testing y mantenimiento.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🏗️ Microservicios</h4>
+                        <p>Servicios independientes y escalables. Ideal para integración de IA.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔐 Seguridad por Diseño</h4>
+                        <p>Arquitectura que considera seguridad desde el inicio, no como agregado.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 Observabilidad</h4>
+                        <p>Monitoreo integrado, logging y trazabilidad desde el diseño.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Herramientas IA -->
+        <div id="herramientas" class="tab-content">
+            <div class="section">
+                <h2>⚙️ Herramientas de IA para Desarrollo</h2>
+                <p>Las herramientas se dividen en categorías según su fortaleza y caso de uso.</p>
+
+                <h3>Categorías de Herramientas</h3>
+
+                <div class="section" style="border-left-color: #208096;">
+                    <h3>1️⃣ Asistentes de Código (IDE-Nativos)</h3>
+                    <p>Enfocadas en autocompletado y sugerencias de código en tiempo real.</p>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Herramienta</th>
+                                <th>Mejor Para</th>
+                                <th>Ventajas</th>
+                                <th>Limitaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>GitHub Copilot</strong></td>
+                                <td>Autocompletado general</td>
+                                <td>Integración IDE nativa, rápido, contextual</td>
+                                <td>Alcance limitado en razonamiento complejo</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cursor</strong></td>
+                                <td>Desarrollo IA-first</td>
+                                <td>Comprensión de codebase completa, agent mode</td>
+                                <td>Requiere cambio de IDE</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Windsurf</strong></td>
+                                <td>Refactoring masivo</td>
+                                <td>Cascade agent, rápido contexto, productividad</td>
+                                <td>Menor enfoque en arquitectura</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tabnine</strong></td>
+                                <td>Privacidad empresarial</td>
+                                <td>Auto-hosting, sin retención de código, offline</td>
+                                <td>Menos potente que modelos cloud</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section" style="border-left-color: #5e5240;">
+                    <h3>2️⃣ Plataformas de IA Generales</h3>
+                    <p>Para razonamiento profundo, arquitectura y debugging complejo.</p>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Plataforma</th>
+                                <th>Mejor Para</th>
+                                <th>Ventajas Clave</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Claude (Anthropic)</strong></td>
+                                <td>Arquitectura, debugging, razonamiento</td>
+                                <td>Contexto gigante (200K), comprensión de código profunda, CLI agent</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ChatGPT (OpenAI)</strong></td>
+                                <td>Consultas generales, prototipado</td>
+                                <td>Versátil, multimodal, integración API amplia</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gemini (Google)</strong></td>
+                                <td>Procesamiento multimodal</td>
+                                <td>Visión, análisis de documentos, imágenes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section" style="border-left-color: #ff5459;">
+                    <h3>3️⃣ Herramientas Especializadas</h3>
+
+                    <div class="grid">
+                        <div class="card">
+                            <h4>🧪 Testing & QA</h4>
+                            <p><span class="badge badge-tool">Testim</span> <span class="badge badge-tool">Diffblue</span> <span class="badge badge-tool">Mabl</span></p>
+                            <p>Generación automática de test cases y mantenimiento.</p>
+                        </div>
+                        <div class="card">
+                            <h4>🚀 DevOps</h4>
+                            <p><span class="badge badge-tool">Harness</span> <span class="badge badge-tool">Datadog</span> <span class="badge badge-tool">New Relic</span></p>
+                            <p>Monitoreo, predicción de fallos, optimización de costos.</p>
+                        </div>
+                        <div class="card">
+                            <h4>📝 Code Review</h4>
+                            <p><span class="badge badge-tool">CodeRabbit</span> <span class="badge badge-tool">Graphite</span></p>
+                            <p>Revisión automática de código con integración MCP.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Modelos Locales vs Cloud</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Modelos Cloud</h4>
+                        <ul>
+                            <li>Mayor capacidad de razonamiento</li>
+                            <li>Contexto más amplio</li>
+                            <li>Mejor para arquitectura compleja</li>
+                            <li>Más actualizados</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>⚠️ Modelos Locales</h4>
+                        <ul>
+                            <li>Privacidad garantizada</li>
+                            <li>Menor latencia</li>
+                            <li>Funciona sin internet</li>
+                            <li>Menor costo operativo</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <strong>💡 Recomendación Híbrida:</strong> Usa modelos cloud (Claude, ChatGPT) para arquitectura y razonamiento profundo, y modelos locales (Ollama, Mistral) para tareas rápidas y privacidad crítica.
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: PRD -->
+        <div id="prd" class="tab-content">
+            <div class="section">
+                <h2>📋 Creación de PRD (Product Requirements Document)</h2>
+                <p>El PRD es tu brújula del proyecto. Define qué, por qué y cómo, antes de codificar.</p>
+
+                <h3>¿Por qué es Crítico un PRD?</h3>
+                <ul>
+                    <li><strong>Alineación:</strong> Todos entienden el mismo objetivo</li>
+                    <li><strong>Contexto para IA:</strong> Le das a Claude/ChatGPT información clara y estructurada</li>
+                    <li><strong>Evita alcance infinito:</strong> Define explícitamente qué NO se hace</li>
+                    <li><strong>Métricas de éxito:</strong> Sabes cuándo terminaste</li>
+                </ul>
+
+                <h3>Estructura de PRD Mínima Viable</h3>
+                <div class="prd-structure">
+                    <div class="prd-item">
+                        <strong>1. Resumen Ejecutivo</strong>
+                        <p>Qué es, por qué importa, en 2-3 párrafos. Úsalo con IA para contexto inicial.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>2. Problema & Oportunidad</strong>
+                        <p>Qué problema resuelves. Datos si hay. Esto guía decisiones arquitectónicas.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>3. Usuarios & Personas</strong>
+                        <p>Quién lo usa. Necesidades específicas. Crucial para IA generar features relevantes.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>4. Objetivos & Métricas (OKRs)</strong>
+                        <p>Qué quieres lograr. Cómo lo mides. Debe ser SMART (Específico, Medible, Alcanzable, Relevante, Temporal).</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>5. Features & Requisitos</strong>
+                        <p>Qué construyes. Priorizados. No entres en detalles técnicos aquí, pero sé claro.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>6. Arquitectura de Alto Nivel</strong>
+                        <p>Decisiones técnicas clave (stack, patrones, integraciones). Esto es lo nuevo con IA.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>7. Supuestos & Restricciones</strong>
+                        <p>Qué asumo que es verdad. Limitaciones de tiempo, presupuesto, tecnología.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>8. Out of Scope</strong>
+                        <p>Qué NO construyes y por qué. Crítico para evitar scope creep con IA.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>9. Timeline & Hitos</strong>
+                        <p>Cuándo. Fases principales. Entregables.</p>
+                    </div>
+                    <div class="prd-item">
+                        <strong>10. Referencias & Recursos</strong>
+                        <p>Links a diseños, documentación técnica, research.</p>
+                    </div>
+                </div>
+
+                <h3>Mejores Prácticas para PRD + IA</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>🎯 Sé Específico</h4>
+                        <p>En lugar de "hacer el app más rápido", dice "reducir tiempo de load a <2s en 3G".</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔄 Actualiza Regularmente</h4>
+                        <p>El PRD es vivo. Cambios en el camino son normales. Documéntalo.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 Usa Datos</h4>
+                        <p>Si tienes research, incluye números. La IA razona mejor con datos.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🤖 Optimiza para IA</h4>
+                        <p>Estructura clara, listas, viñetas. La IA entiende mejor el formato.</p>
+                    </div>
+                </div>
+
+                <h3>Plantilla Rápida para Empezar</h3>
+                <div class="highlight-box">
+                    <strong>Título:</strong> [Nombre del Producto/Feature]<br><br>
+                    <strong>Resumen:</strong> [2-3 párrafos describiendo qué es]<br><br>
+                    <strong>Problema:</strong> [Qué problema resuelve. Por qué ahora.]<br><br>
+                    <strong>Usuarios Objetivo:</strong> [Persona 1], [Persona 2]<br><br>
+                    <strong>Objetivos (OKRs):</strong>
+                    <ul>
+                        <li>O: [Objetivo grande]
+                            <ul>
+                                <li>KR1: [Resultado medible]</li>
+                                <li>KR2: [Resultado medible]</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <strong>Features Principales:</strong>
+                    <ul>
+                        <li>[Feature 1] - Por qué importa</li>
+                        <li>[Feature 2] - Por qué importa</li>
+                    </ul>
+                    <strong>Restricciones:</strong> [Tiempo, dinero, tecnología, etc.]<br><br>
+                    <strong>Out of Scope:</strong> [Qué NO hacemos y por qué]
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Flujo de Trabajo General -->
+        <div id="flujo" class="tab-content">
+            <div class="section">
+                <h2>🔄 Flujo de Trabajo: De Idea a Código</h2>
+
+                <h3>Proceso Recomendado con IA</h3>
+                <div class="flow-diagram">
+                    <div class="flow-step">1. PRD<br>(Contexto)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">2. Arquitectura<br>(Claude)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">3. Diseño<br>(Wireframes)</div>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-step">4. Código<br>(Cursor/Copilot)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">5. Tests<br>(IA + Manual)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">6. Review<br>(CodeRabbit)</div>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-step">7. Deploy<br>(CI/CD)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">8. Monitor<br>(Observability)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">9. Iterate<br>(Feedback)</div>
+                </div>
+
+                <h3>Uso de IA en Cada Fase</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>📋 Fase 1: PRD & Contexto</h4>
+                        <p><strong>Tool:</strong> Claude, ChatGPT</p>
+                        <p>Usa IA para validar el PRD, explorar casos de uso, identificar gaps.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🏗️ Fase 2: Arquitectura</h4>
+                        <p><strong>Tool:</strong> Claude Code (terminal)</p>
+                        <p>Discute decisiones de arquitectura, stack, patrones. IA ayuda a pensar trade-offs.</p>
+                    </div>
+                    <div class="card">
+                        <h4>💻 Fase 3: Desarrollo</h4>
+                        <p><strong>Tool:</strong> Cursor o Copilot</p>
+                        <p>Autocompletado inteligente, generación de boilerplate, refactoring rápido.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🧪 Fase 4: Testing</h4>
+                        <p><strong>Tool:</strong> Testim, Diffblue, Claude</p>
+                        <p>Generar test cases, encontrar edge cases, validar cobertura.</p>
+                    </div>
+                    <div class="card">
+                        <h4>👀 Fase 5: Code Review</h4>
+                        <p><strong>Tool:</strong> CodeRabbit, Claude</p>
+                        <p>Análisis automático de calidad, seguridad, estilo.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🚀 Fase 6: DevOps</h4>
+                        <p><strong>Tool:</strong> Harness, Datadog</p>
+                        <p>Automatización de deploy, monitoreo, alertas predictivas.</p>
+                    </div>
+                </div>
+
+                <h3>Tips de Flujo de Trabajo</h3>
+                <ul>
+                    <li><strong>Contexto es Rey:</strong> Comparte el PRD y arquitectura con IA. Más contexto = mejores resultados.</li>
+                    <li><strong>Itera Rápido:</strong> No perfecciones en la primera pasada. IA puede refactorizar después.</li>
+                    <li><strong>Valida Siempre:</strong> IA genera código rápido, pero TÚ revises lógica y seguridad.</li>
+                    <li><strong>Documentación Viva:</strong> Actualiza PRD y arquitectura conforme avanzas.</li>
+                    <li><strong>Feedback Loop:</strong> Métricas reales → mejoras → próxima iteración.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab: Flujo Copilot (NUEVA SECCIÓN) -->
+        <div id="copilot" class="tab-content">
+            <div class="section">
+                <h2>🤖 Tu Flujo Copilot: Plan → Markdown → Agent → Deploy</h2>
+                <p>Esta es la metodología optimizada que has desarrollado con GitHub Copilot, probada y efectiva en 2026.</p>
+
+                <h3>Tu Flujo de 4 Pasos</h3>
+                <div class="copilot-steps">
+                    <div class="copilot-step">
+                        <div class="step-number">1</div>
+                        <div>
+                            <h4>📋 Plan Mode: Diseña tu Proyecto</h4>
+                            <p><strong>¿Qué haces?</strong> Inicias en <em>Plan Mode</em> en Copilot Chat. Describes el proyecto o los cambios que quieres hacer de forma clara y estructurada.</p>
+                            <p><strong>Copilot hace:</strong> Analiza tu codebase, propone un plan paso a paso, identifica gaps y dependencias antes de tocar código.</p>
+                            <p><strong>Ventaja:</strong> Evitas cambios caóticos. El plan es tu brújula. Puedes revisarlo, ajustarlo o aprobarlo completamente.</p>
+                        </div>
+                    </div>
+
+                    <div class="copilot-step">
+                        <div class="step-number">2</div>
+                        <div>
+                            <h4>📄 Markdown: Documenta y Estructura</h4>
+                            <p><strong>¿Qué haces?</strong> Le pides a Copilot que guarde el plan en un archivo Markdown (ej: `PLAN.md` o `CHANGES.md`).</p>
+                            <p><strong>Beneficios:</strong></p>
+                            <ul>
+                                <li>📌 Referencia visual clara de qué hacer paso a paso</li>
+                                <li>✅ Checkbox list para marcar tareas completadas</li>
+                                <li>🔄 Fácil de actualizar si cambian los requisitos</li>
+                                <li>👥 Compartible con el equipo para feedback</li>
+                                <li>📚 Historial de decisiones documentadas</li>
+                            </ul>
+                            <p><strong>Estructura típica del Markdown:</strong></p>
+                            <ul>
+                                <li>Objetivo general</li>
+                                <li>Pre-requisitos y dependencias</li>
+                                <li>Tareas principales (cada una con subtareas)</li>
+                                <li>Testing requirements</li>
+                                <li>Deployment checklist</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="copilot-step">
+                        <div class="step-number">3</div>
+                        <div>
+                            <h4>⚙️ Agent Mode: Ejecución Automática</h4>
+                            <p><strong>¿Qué haces?</strong> Activas Agent Mode en Copilot. Solicitas que realice los cambios basado en el plan Markdown que crearon juntos.</p>
+                            <p><strong>Copilot hace (automáticamente):</strong></p>
+                            <ul>
+                                <li>🔍 Lee tu Markdown como referencia</li>
+                                <li>📝 Modifica archivos necesarios paso a paso</li>
+                                <li>🧪 Corre tests unitarios automáticamente</li>
+                                <li>🐛 Detesta errores y se autocorrige</li>
+                                <li>📊 Reporta avance vs plan</li>
+                            </ul>
+                            <p><strong>Tu rol:</strong> Monitoreas el progreso, revisas cambios propuestos, pides ajustes si algo se desvía del plan.</p>
+                            <p><strong>Validación de Tests:</strong> Copilot ejecuta `npm test`, `pytest`, etc. Si fallan, ajusta el código automáticamente.</p>
+                        </div>
+                    </div>
+
+                    <div class="copilot-step">
+                        <div class="step-number">4</div>
+                        <div>
+                            <h4>🚀 Deploy & Prueba Manual</h4>
+                            <p><strong>¿Qué haces?</strong> Una vez que Copilot finalizó los cambios y tests pasaron, TÚ despliegas manualmente y pruebas en ambiente real.</p>
+                            <p><strong>Despliegue:</strong></p>
+                            <ul>
+                                <li>Git push → CI/CD pipeline (GitHub Actions, etc.)</li>
+                                <li>Deploy a staging/producción</li>
+                                <li>Verifica logs y métricas</li>
+                            </ul>
+                            <p><strong>Pruebas Manuales:</strong> Los tests automatizados validan lógica, pero tú validas experiencia real:
+                            <ul>
+                                <li>Flujos end-to-end en navegador/app</li>
+                                <li>Integración con servicios externos (APIs, BD)</li>
+                                <li>Performance en red real</li>
+                                <li>UX y detalles que los tests no capturan</li>
+                            </ul>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Modos de Copilot: Cuándo Usar Cada Uno</h3>
+                <div class="mode-comparison">
+                    <div class="mode-card">
+                        <h4>💬 Ask Mode</h4>
+                        <p><strong>Mejor para:</strong> Preguntas puntuales, explicaciones, consultas rápidas</p>
+                        <ul>
+                            <li>"¿Cómo uso questa API?"</li>
+                            <li>"Explica este algoritmo"</li>
+                            <li>"Mejores prácticas para..."</li>
+                        </ul>
+                    </div>
+
+                    <div class="mode-card">
+                        <h4>✏️ Edit Mode</h4>
+                        <p><strong>Mejor para:</strong> Cambios pequeños y específicos en archivos</p>
+                        <ul>
+                            <li>Refactorizar una función</li>
+                            <li>Agregar una feature pequeña</li>
+                            <li>Corregir un bug localizado</li>
+                        </ul>
+                    </div>
+
+                    <div class="mode-card">
+                        <h4>📐 Plan Mode</h4>
+                        <p><strong>Mejor para:</strong> Proyectos complejos, múltiples cambios, nuevas features</p>
+                        <ul>
+                            <li>Nuevo módulo o servicio</li>
+                            <li>Refactoring masivo</li>
+                            <li>Arquitectura importante</li>
+                        </ul>
+                    </div>
+
+                    <div class="mode-card">
+                        <h4>⚡ Agent Mode</h4>
+                        <p><strong>Mejor para:</strong> Ejecución autónoma de planes multi-paso</p>
+                        <ul>
+                            <li>Implementar plan que crearon juntos</li>
+                            <li>Tests y validación automática</li>
+                            <li>Cambios con impacto en múltiples archivos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Mejores Prácticas Específicas para tu Flujo</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>✅ Plan Claro = Ejecución Clara</h4>
+                        <p>Cuanto más detallado y estructurado sea tu plan Markdown, mejor ejecutará Agent Mode. Sé específico en:
+                            <ul style="margin-top: 10px;">
+                                <li>Qué archivos tocar</li>
+                                <li>Qué tests ejecutar</li>
+                                <li>Validaciones esperadas</li>
+                            </ul>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>🔄 Itera si es Necesario</h4>
+                        <p>Si Agent Mode se desvía del plan:
+                            <ul style="margin-top: 10px;">
+                                <li>Detén la ejecución</li>
+                                <li>Actualiza el Markdown con claridad</li>
+                                <li>Reinicia Agent Mode</li>
+                            </ul>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 Valida Tests Antes de Deploy</h4>
+                        <p>Agent Mode ejecuta tests, pero TÚ revisa:
+                            <ul style="margin-top: 10px;">
+                                <li>Coverage >80%</li>
+                                <li>Tests reales, no mocks vacíos</li>
+                                <li>Edge cases cubiertos</li>
+                            </ul>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>🛡️ Mantén copilot-instructions.md</h4>
+                        <p>Define tus convenciones:
+                            <ul style="margin-top: 10px;">
+                                <li>Estilo de código preferido</li>
+                                <li>Stack tecnológico</li>
+                                <li>Testing standards</li>
+                                <li>Estructuras de carpetas</li>
+                            </ul>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>📝 Documenta lo que Genera</h4>
+                        <p>Copilot genera código rápido, pero:
+                            <ul style="margin-top: 10px;">
+                                <li>Revisa la lógica crítica</li>
+                                <li>Añade comentarios donde sea complejo</li>
+                                <li>Actualiza documentation</li>
+                            </ul>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>🚀 Manual Testing es Clave</h4>
+                        <p>Los tests pasan pero hay más que revisar:
+                            <ul style="margin-top: 10px;">
+                                <li>API responses correctas</li>
+                                <li>Database consistency</li>
+                                <li>Edge cases en producción</li>
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+
+                <h3>Ejemplo Real: Agregar Autenticación OAuth</h3>
+                <div class="highlight-box">
+                    <strong>Paso 1 - Plan Mode:</strong><br>
+                    "Agregar OAuth2 con Google a mi app Next.js. Necesito: login button, callback handler, sesión segura, tests."<br><br>
+                    
+                    <strong>Paso 2 - Markdown Plan:</strong><br>
+                    <code style="background: white; padding: 10px; display: block; border-radius: 4px;">
+# OAuth Google Integration<br>
+- [ ] Install dependencies (next-auth)<br>
+- [ ] Create auth config<br>
+- [ ] Add login/logout endpoints<br>
+- [ ] Update session middleware<br>
+- [ ] Create unit tests<br>
+- [ ] Test end-to-end flow<br>
+- [ ] Update documentation
+                    </code><br>
+                    
+                    <strong>Paso 3 - Agent Mode:</strong><br>
+                    "Using the plan from PLAN.md, implement OAuth integration. Run tests after each step."<br><br>
+                    
+                    <strong>Paso 4 - Manual Deploy:</strong><br>
+                    Depliegas a staging, pruebas con cuenta Google real, verificas session cookies, revisa logs. ✅
+                </div>
+
+                <h3>Comparativa: Antes vs Con tu Flujo</h3>
+                <div class="pros-cons">
+                    <div class="cons">
+                        <h4>❌ Sin Plan</h4>
+                        <ul>
+                            <li>Cambios aleatorios sin dirección</li>
+                            <li>Tests fail sin razón clara</li>
+                            <li>Código inconsistente</li>
+                            <li>Debugging caótico</li>
+                            <li>Deploy a ciegas</li>
+                        </ul>
+                    </div>
+                    <div class="pros">
+                        <h4>✅ Con tu Flujo</h4>
+                        <ul>
+                            <li>Plan aprobado primero</li>
+                            <li>Tests validados automáticamente</li>
+                            <li>Código coherente y testable</li>
+                            <li>Errores detectados temprano</li>
+                            <li>Deploy confiado con validación manual</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Mejores Prácticas -->
+        <div id="mejores" class="tab-content">
+            <div class="section">
+                <h2>⭐ Mejores Prácticas para Desarrollo con IA</h2>
+
+                <h3>1. Arquitectura Primero, Código Después</h3>
+                <ul>
+                    <li>Define arquitectura ANTES de codificar. IA es mejor pensando en alto nivel.</li>
+                    <li>Decisions: Stack, patrones (DDD, CQRS), integraciones, escalabilidad.</li>
+                    <li>Usa Claude para exploring trade-offs y validating decisions.</li>
+                </ul>
+
+                <h3>2. PRD es tu Mejor Amigo</h3>
+                <ul>
+                    <li>PRD claro = instrucciones claras para IA.</li>
+                    <li>Vago PRD = código vago, scope creep, frustración.</li>
+                    <li>Actualiza PRD conforme aprendes. Es documento vivo.</li>
+                </ul>
+
+                <h3>3. Hybrid Workflow</h3>
+                <ul>
+                    <li><strong>Claude/ChatGPT:</strong> Arquitectura, debugging profundo, razonamiento.</li>
+                    <li><strong>Cursor/Copilot:</strong> Desarrollo diario, autocompletado, refactoring rápido.</li>
+                    <li><strong>Modelos Locales:</strong> Tareas simples, privacidad, reducir costos.</li>
+                </ul>
+
+                <h3>4. Code Review Humano es No-Negociable</h3>
+                <ul>
+                    <li>IA puede generar rápido, pero lógica compleja requiere humanos.</li>
+                    <li>Usa CodeRabbit/IA para primer pasada (estilo, seguridad básica).</li>
+                    <li>Humano revisa arquitectura, lógica crítica, seguridad.</li>
+                </ul>
+
+                <h3>5. Testing Automatizado + IA</h3>
+                <ul>
+                    <li>IA genera test cases iniciales. Humano añade edge cases.</li>
+                    <li>Cobertura >80% antes de producción.</li>
+                    <li>Tests son documentación. Escríbelos claro.</li>
+                </ul>
+
+                <h3>6. Seguridad por Diseño</h3>
+                <ul>
+                    <li>Menciona seguridad explícitamente al PRD y al pedir a IA.</li>
+                    <li>Input validation, auth/authz, data encryption, logging.</li>
+                    <li>IA puede generar boilerplate seguro si se lo pides claro.</li>
+                </ul>
+
+                <h3>7. Documentación Generada por IA</h3>
+                <ul>
+                    <li>IA es excelente documentando código.</li>
+                    <li>Genera docstrings, README, API docs automáticamente.</li>
+                    <li>Revisar pero acelera mucho proceso.</li>
+                </ul>
+
+                <h3>8. Observabilidad & Monitoreo</h3>
+                <ul>
+                    <li>Diseña logging/metrics ANTES de codificar.</li>
+                    <li>IA puede generar instrumentation estándar.</li>
+                    <li>Production insights > assumptions.</li>
+                </ul>
+
+                <h3>9. Evita Vendor Lock-In</h3>
+                <ul>
+                    <li>No dependas 100% de una herramienta IA.</li>
+                    <li>Código debe funcionar sin IA generada.</li>
+                    <li>Conoce tus herramientas alternativas.</li>
+                </ul>
+
+                <h3>10. Aprende, No Copies</h3>
+                <ul>
+                    <li>IA es herramienta para aprender, no reemplazo de conocimiento.</li>
+                    <li>Entiende código que genera. Modifícalo, mejóralo.</li>
+                    <li>Tu expertise > IA en decisiones críticas.</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>🎯 El Desarrollo con IA en 2026:</strong> No es "IA hace todo". Es "tú + IA hacen mejor, más rápido". Tu rol evoluciona de "escribir código" a "decidir arquitectura, validar lógica, guiar IA". Especialmente con tu flujo Copilot: Plan → Markdown → Agent → Deploy.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>📚 Guía interactiva basada en investigación actual de desarrollo con IA (Enero 2026)</p>
+            <p>💡 Mantén este documento como referencia viva. Actualiza conforme evoluciona el ecosistema.</p>
+            <p>🎯 Tu flujo Copilot: Plan Mode → Markdown Planning → Agent Mode Execution → Manual Testing & Deploy</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
