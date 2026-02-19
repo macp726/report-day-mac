@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: lgmk-pers-fa-watch-facade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .subsection {
+            margin-bottom: 25px;
+        }
+
+        .subsection h3 {
+            color: #764ba2;
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.5em;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+        }
+
+        /* Diagrama de arquitectura */
+        .arch-diagram {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .arch-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .arch-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .arch-box.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .arch-box.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: #f5576c;
+        }
+
+        .arch-box.tertiary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-color: #00f2fe;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        /* Protocolo */
+        .frame-format {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            overflow-x: auto;
+        }
+
+        .frame-field {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 12px;
+            margin: 0 3px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        /* Handlers */
+        .handlers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .handler-card {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .handler-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .handler-name {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .handler-cmd {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-family: monospace;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .handler-reply {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Infrastructure */
+        .infra-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+            justify-content: space-around;
+        }
+
+        .infra-item {
+            flex: 1;
+            min-width: 150px;
+            background: #f8f9fa;
+            border: 2px solid #764ba2;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .infra-item strong {
+            display: block;
+            color: #764ba2;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .infra-value {
+            background: #764ba2;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-family: monospace;
+            margin-top: 8px;
+        }
+
+        /* Tabla */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Highlight boxes */
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box strong {
+            color: #856404;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #155724;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #0c5460;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .badge.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .badge.success {
+            background: #28a745;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .infra-flex {
+                flex-direction: column;
+            }
+
+            .handlers-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+                text-align: left;
+                border: none;
+                border-left: 3px solid transparent;
+            }
+
+            .tab-btn.active {
+                border-left-color: #667eea;
+                border-bottom-color: transparent;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 lgmk-pers-fa-watch-facade</h1>
+            <p>Gateway TCP para Protocolo Qulip Smartwatch V1.9</p>
+        </header>
+
+        <!-- Overview -->
+        <div class="section">
+            <h2>📋 Vista General</h2>
+            <p>Servicio IoT en Node.js 24 + TypeScript que recibe y procesa tramas TCP raw de relojes Qulip FaWatch, ejecutándose en AWS ECS Fargate con NLB.</p>
+            
+            <div class="infra-flex" style="margin-top: 20px;">
+                <div class="infra-item">
+                    <strong>📌 Puerto TCP</strong>
+                    <div class="infra-value">9000</div>
+                </div>
+                <div class="infra-item">
+                    <strong>🌐 Servidor</strong>
+                    <div class="infra-value">net.Server</div>
+                </div>
+                <div class="infra-item">
+                    <strong>☁️ Infraestructura</strong>
+                    <div class="infra-value">ECS Fargate</div>
+                </div>
+                <div class="infra-item">
+                    <strong>📊 Cobertura Tests</strong>
+                    <div class="infra-value">96%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Protocolo Qulip -->
+        <div class="section">
+            <h2>🔌 Protocolo Qulip V1.9</h2>
+            
+            <div class="subsection">
+                <h3><span class="icon">📦</span> Formato de Trama</h3>
+                <p>Todas las comunicaciones usan tramas delimitadas por corchetes en formato texto:</p>
+                <div class="frame-format">
+                    [<span class="frame-field">KM</span>*<span class="frame-field">DEVICEID</span>*<span class="frame-field">SERIAL</span>*<span class="frame-field">LEN</span>*<span class="frame-field">CONTENT</span>]
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Descripción</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>DEVICEID</strong></td>
+                            <td>Identificador del reloj</td>
+                            <td>WATCH001</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SERIAL</strong></td>
+                            <td>Número de serie (echado en respuesta)</td>
+                            <td>0042</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LEN</strong></td>
+                            <td>Longitud de CONTENT en hex (4 dígitos)</td>
+                            <td>0006 (6 bytes)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CONTENT</strong></td>
+                            <td>COMANDO[,arg1,arg2,...]</td>
+                            <td>INIT o UD,lat,lon</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">🔄</span> Ejemplo de Intercambio</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>Reloj → Servidor:</strong></p>
+                    <div class="frame-format">[KM*WATCH001*0001*0004*INIT]</div>
+                    <p style="margin-top: 15px;"><strong>Servidor → Reloj:</strong></p>
+                    <div class="frame-format">[KM*WATCH001*0001*0006*INIT,1]</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">⚡</span> Fragmentación TCP</h3>
+                <div class="info-box">
+                    <strong>Manejo Automático:</strong> TCP es un stream de bytes — una trama puede llegar en múltiples eventos <code>data</code>, o múltiples tramas en un evento. <code>ConnectionHandler</code> mantiene un buffer por conexión y scanea <code>[...]</code> para extraer tramas completas.
+                </div>
+            </div>
+        </div>
+
+        <!-- Arquitectura de Aplicación -->
+        <div class="section">
+            <h2>🏗️ Arquitectura de Aplicación</h2>
+            
+            <div class="subsection">
+                <h3><span class="icon">⚙️</span> Flujo de Procesamiento de Trama</h3>
+                <div class="arch-diagram">
+                    <div class="arch-box primary">🔌 Conexión TCP recibida</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box secondary">📥 Bytes acumulados en buffer</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box primary">🔍 Trama completa detectada [...]</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box tertiary">📝 FrameParser.parseTrama() → Trama</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box secondary">📤 CommandRegistry.dispatch()</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box primary">🎯 Handler específico procesa</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box tertiary">✍️ FrameBuilder.buildResponse()</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box secondary">📤 socket.write(respuesta)</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">📂</span> Estructura de Código</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9em; overflow-x: auto;">
+<pre>src/
+├── <strong>index.ts</strong>                Entry point
+├── config/environment.ts    Validación de env vars
+├── tcp/
+│   ├── TcpServer.ts         Servidor net.Server
+│   ├── ConnectionHandler.ts Buffer + dispatch
+│   ├── FrameParser.ts       Parsing [KM*...]
+│   ├── FrameBuilder.ts      Construcción respuestas
+│   ├── CommandRegistry.ts   Map&lt;cmd, handler&gt; O(1)
+│   └── handlers/            9 handlers + fallback
+├── utils/logger.ts          Winston logger
+└── utils/gracefulShutdown.ts Process.on(SIGTERM)</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Handlers -->
+        <div class="section">
+            <h2>🎛️ Command Handler Registry — Patrón Command Pattern</h2>
+            
+            <div class="subsection">
+                <h3><span class="icon">⚡</span> ¿Por qué Command Pattern es la Mejor Opción?</h3>
+                <p>El patrón <strong>Command Pattern</strong> con una <code>Map&lt;string, ICommandHandler&gt;</code> es superior a alternativas como if-else chains o switch statements:</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 15px 0;">
+                    <div style="background: linear-gradient(135deg, #667eea15, #764ba215); border: 2px solid #667eea; border-radius: 8px; padding: 15px; text-align: center;">
+                        <strong style="color: #667eea; display: block; margin-bottom: 8px;">⚡ Complejidad O(1)</strong>
+                        <span style="font-size: 0.9em; color: #666;">Map lookup instant. if-else/switch = O(n)</span>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f093fb15, #f5576c15); border: 2px solid #f5576c; border-radius: 8px; padding: 15px; text-align: center;">
+                        <strong style="color: #f5576c; display: block; margin-bottom: 8px;">📈 Escalabilidad</strong>
+                        <span style="font-size: 0.9em; color: #666;">Agrega comandos sin modificar core logic</span>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #4facfe15, #00f2fe15); border: 2px solid #00f2fe; border-radius: 8px; padding: 15px; text-align: center;">
+                        <strong style="color: #00f2fe; display: block; margin-bottom: 8px;">🧪 Testabilidad</strong>
+                        <span style="font-size: 0.9em; color: #666;">Cada handler es independiente, fácil de mockear</span>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #28a74515, #28a74530); border: 2px solid #28a745; border-radius: 8px; padding: 15px; text-align: center;">
+                        <strong style="color: #28a745; display: block; margin-bottom: 8px;">🔧 Mantenibilidad</strong>
+                        <span style="font-size: 0.9em; color: #666;">Responsabilidad única por comando</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">🔄</span> Ciclo de Vida de un Comando</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; font-size: 0.95em; line-height: 1.8;">
+                    <strong>1. Trama llega en TCP</strong><br/>
+                    <code>[KM*WATCH001*0042*0004*INIT]</code><br/><br/>
+                    <strong>2. FrameParser.parseTrama()</strong><br/>
+                    → Extrae: <code>command="INIT", args=[]</code><br/><br/>
+                    <strong>3. CommandRegistry.dispatch()</strong><br/>
+                    → <code>handlers.get("INIT")</code> → <strong>O(1)</strong><br/><br/>
+                    <strong>4. InitHandler.handle(ctx)</strong><br/>
+                    → Retorna: <code>"INIT,1"</code> (lógica pura)<br/><br/>
+                    <strong>5. ConnectionHandler escribe respuesta</strong><br/>
+                    → socket.write(<code>[KM*WATCH001*0042*0006*INIT,1]</code>)
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">💡</span> Principios de Diseño</h3>
+                <div class="success-box">
+                    <strong>✓ Separación de Responsabilidades:</strong> Handlers contienen lógica, no I/O. ConnectionHandler maneja socket.write()
+                </div>
+                <div class="info-box">
+                    <strong>✓ Open/Closed Principle:</strong> Abierto para extensión (agregar handlers), cerrado para modificación (sin tocar registry core)
+                </div>
+                <div class="highlight-box">
+                    <strong>✓ Testability First:</strong> Mock handler retorna null o respuesta — sin necesidad de socket real
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">📋</span> Comparación con Alternativas</h3>
+                <table style="margin: 15px 0; font-size: 0.95em;">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Aspecto</th>
+                            <th style="width: 25%; background: #fee2e2;">if-else chain</th>
+                            <th style="width: 25%; background: #fef3c7;">switch statement</th>
+                            <th style="width: 20%; background: #d1fae5;"><strong>Map + Command ✅</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Complejidad</strong></td>
+                            <td style="background: #fee2e2;">O(n)</td>
+                            <td style="background: #fef3c7;">O(n)</td>
+                            <td style="background: #d1fae5;"><strong>O(1)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Escalabilidad</strong></td>
+                            <td style="background: #fee2e2;">❌ Crecimiento lineal</td>
+                            <td style="background: #fef3c7;">⚠️ Manageable</td>
+                            <td style="background: #d1fae5;">✅ Constante</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agregar Comando</strong></td>
+                            <td style="background: #fee2e2;">Modificar main logic</td>
+                            <td style="background: #fef3c7;">Modificar switch</td>
+                            <td style="background: #d1fae5;">register() únicamente</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Testabilidad</strong></td>
+                            <td style="background: #fee2e2;">❌ Difícil aislar</td>
+                            <td style="background: #fef3c7;">⚠️ Media</td>
+                            <td style="background: #d1fae5;">✅ Aislado por handler</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mantenibilidad</strong></td>
+                            <td style="background: #fee2e2;">❌ Messy</td>
+                            <td style="background: #fef3c7;">⚠️ Medio</td>
+                            <td style="background: #d1fae5;">✅ Limpio y modular</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SOLID Principles</strong></td>
+                            <td style="background: #fee2e2;">Viola SRP</td>
+                            <td style="background: #fef3c7;">Viola OCP</td>
+                            <td style="background: #d1fae5;">✅ Cumple todos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">🎯</span> Registro de Handlers (10 comandos)</h3>
+                <div class="handlers-grid">
+                    <div class="handler-card">
+                        <div class="handler-name">INIT</div>
+                        <div class="handler-cmd">InitHandler</div>
+                        <div class="handler-reply">↔ INIT,1</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Handshake inicial</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">LK</div>
+                        <div class="handler-cmd">LkHandler</div>
+                        <div class="handler-reply">↔ LK,fecha,hora</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Sync de hora UTC</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">UD</div>
+                        <div class="handler-cmd">UdHandler</div>
+                        <div class="handler-reply">↔ UD</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">GPS location ACK</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">UD2</div>
+                        <div class="handler-cmd">Ud2Handler</div>
+                        <div class="handler-reply">→ null</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">GPS sin respuesta</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">AL</div>
+                        <div class="handler-cmd">AlHandler</div>
+                        <div class="handler-reply">↔ AL</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Alarm detection</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">HEART</div>
+                        <div class="handler-cmd">HeartHandler</div>
+                        <div class="handler-reply">↔ HEART</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Heart rate data</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">BLOOD</div>
+                        <div class="handler-cmd">BloodHandler</div>
+                        <div class="handler-reply">↔ BLOOD</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Blood pressure data</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">SLEEP</div>
+                        <div class="handler-cmd">SleepHandler</div>
+                        <div class="handler-reply">↔ SLEEP</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Sleep tracking</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">GETLOC</div>
+                        <div class="handler-cmd">GetLocHandler</div>
+                        <div class="handler-reply">↔ GETLOC,...</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Request location</div>
+                    </div>
+                    <div class="handler-card">
+                        <div class="handler-name">*</div>
+                        <div class="handler-cmd">UnknownHandler</div>
+                        <div class="handler-reply">→ null</div>
+                        <div style="font-size: 0.75em; color: #999; margin-top: 5px;">Fallback + log warning</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">💻</span> Implementación TypeScript</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 0.85em; overflow-x: auto;">
+<pre><strong>// Interfaz central — contrato para todos los handlers</strong>
+interface ICommandHandler {
+  handle(ctx: HandlerContext): string | null;
+}
+
+<strong>// Registry con Map O(1)</strong>
+class CommandRegistry {
+  private handlers: Map&lt;string, ICommandHandler&gt;;
+  
+  dispatch(cmd: string, ctx: HandlerContext): string | null {
+    const handler = this.handlers.get(cmd) 
+      || this.handlers.get('*'); // fallback
+    return handler.handle(ctx);
+  }
+}
+
+<strong>// Handler concreto — ejemplo</strong>
+class InitHandler implements ICommandHandler {
+  handle(ctx: HandlerContext): string {
+    logger.info('[INIT] Watch connected', {
+      deviceId: ctx.trama.deviceId
+    });
+    return 'INIT,1'; // Respuesta pura, sin I/O
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 20px;">
+                <strong>🎯 Contrato Fundamental:</strong> Handlers retornan <code>string | null</code> — NUNCA escriben directamente al socket. <code>ConnectionHandler</code> es responsable de todo I/O. Esto permite testear handlers con 0 dependencias de red.
+            </div>
+        </div>
+
+        <!-- Infraestructura -->
+        <div class="section">
+            <h2>☁️ Infraestructura AWS</h2>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'arch')">Arquitectura</button>
+                <button class="tab-btn" onclick="switchTab(event, 'resources')">Recursos Terraform</button>
+                <button class="tab-btn" onclick="switchTab(event, 'security')">Seguridad</button>
+            </div>
+
+            <div id="arch" class="tab-content active">
+                <div class="arch-diagram">
+                    <div class="arch-box" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border-color: #ff6b6b; color: white;">
+                        🌍 Internet → Relojes Qulip (TCP :9000)
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-color: #f5576c; color: white;">
+                        Network Load Balancer (NLB) — Layer 4
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-color: #00f2fe; color: white;">
+                        Subnets Privadas (AZs: a, b)
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="arch-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #764ba2; color: white;">
+                        ECS Fargate Tasks (2 réplicas) — :9000
+                    </div>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <strong>Importante:</strong> NLB opera en Layer 4 y <strong>preserva la IP del cliente</strong> (reloj). No tiene SG propio, por lo que el SG de ECS debe permitir <code>0.0.0.0/0:9000</code>.
+                </div>
+
+                <div class="success-box" style="margin-top: 15px;">
+                    <strong>Escalabilidad:</strong> Las tareas ECS se distribuyen en AZs para alta disponibilidad. NLB balancea tráfico automáticamente.
+                </div>
+            </div>
+
+            <div id="resources" class="tab-content">
+                <p><strong>Recursos Terraform creados:</strong></p>
+                <ul style="margin-left: 20px; line-height: 1.8;">
+                    <li>✓ ECR Repository (almacén de imágenes Docker)</li>
+                    <li>✓ ECS Cluster + Task Definition + Service</li>
+                    <li>✓ Network Load Balancer (NLB) — TCP :9000</li>
+                    <li>✓ Target Group para NLB</li>
+                    <li>✓ Security Group (ECS)</li>
+                    <li>✓ CloudWatch Log Group (7-30 días retencion)</li>
+                    <li>✓ IAM Roles (execution + task)</li>
+                    <li>✓ Route53 A-record (dominios como watch-tcp-develop.lgmk-eng.com)</li>
+                </ul>
+
+                <table style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Entorno</th>
+                            <th>Dominio TCP</th>
+                            <th>Región</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge">develop</span></td>
+                            <td>watch-tcp-develop.lgmk-eng.com:9000</td>
+                            <td>us-east-1</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">qa</span></td>
+                            <td>watch-tcp-qa.lgmk-eng.com:9000</td>
+                            <td>us-east-1</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">staging</span></td>
+                            <td>watch-tcp-staging.lgmk-eng.com:9000</td>
+                            <td>us-east-1</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge success">main2</span></td>
+                            <td>watch-tcp.lgmk-eng.com:9000</td>
+                            <td>us-east-1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="security" class="tab-content">
+                <div class="subsection">
+                    <h3 style="border: none; color: #667eea;">🔒 Security Group (ECS)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dirección</th>
+                                <th>CIDR</th>
+                                <th>Puerto</th>
+                                <th>Protocolo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Ingress</strong></td>
+                                <td>0.0.0.0/0</td>
+                                <td>9000</td>
+                                <td>TCP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Egress</strong></td>
+                                <td>0.0.0.0/0</td>
+                                <td>Todos</td>
+                                <td>Todos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box" style="margin-top: 15px;">
+                        El ingress de <code>0.0.0.0/0</code> es necesario porque NLB es Layer 4 y no tiene SG.
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 style="border: none; color: #667eea;">📊 ECS Task Definition</h3>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>CPU:</strong> 256 (0.25 vCPU)</li>
+                        <li><strong>RAM:</strong> 512 MB</li>
+                        <li><strong>Network Mode:</strong> awsvpc</li>
+                        <li><strong>Launch Type:</strong> FARGATE</li>
+                        <li><strong>Health Check:</strong> nc -zw1 localhost 9000 (cada 30s)</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h3 style="border: none; color: #667eea;">🏷️ Tagging Estándar</h3>
+                    <div class="frame-format">
+Project: lgmk-pers-fa-watch-facade
+Environment: &lt;develop|qa|staging|main2&gt;
+ManagedBy: Terraform
+Owner: Engineering
+Department: IT
+Repository: lgmk-pers-fa-watch-facade
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Docker & Deployment -->
+        <div class="section">
+            <h2>🐳 Docker & Deployment</h2>
+
+            <div class="subsection">
+                <h3><span class="icon">📦</span> Multi-Stage Build</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85em;">
+<pre><strong>Stage 1: Builder (node:24-alpine)</strong>
+✓ npm ci (todas las dependencias)
+✓ esbuild → dist/index.js (~14 KB)
+
+<strong>Stage 2: Runtime (node:24-alpine)</strong>
+✓ npm ci --omit=dev (solo runtime)
+✓ Copy dist/ del builder
+✓ User: appuser (UID 1001, no-root)
+✓ EXPOSE 9000
+
+<strong>Resultado:</strong> ~180 MB image
+(vs ~900 MB single-stage)</pre>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">🚀</span> Pipeline CI/CD</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 15px 0;">
+                    <div class="arch-box tertiary">1️⃣ Test<br/>(Jest ≥80%)</div>
+                    <div class="arch-box primary">2️⃣ Build<br/>(esbuild)</div>
+                    <div class="arch-box secondary">3️⃣ Push<br/>(ECR)</div>
+                    <div class="arch-box tertiary">4️⃣ Deploy<br/>(ECS)</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">🔄</span> Graceful Shutdown</h3>
+                <div class="info-box">
+                    <strong>Proceso:</strong><br/>
+                    1. SIGTERM/SIGINT recibido<br/>
+                    2. TcpServer.close() → detiene nuevas conexiones<br/>
+                    3. Espera a conexiones activas (timeout 30s)<br/>
+                    4. process.exit(0) on success | process.exit(1) on timeout
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing -->
+        <div class="section">
+            <h2>✅ Testing & Coverage</h2>
+            
+            <table style="margin: 20px 0;">
+                <thead>
+                    <tr>
+                        <th>Componente</th>
+                        <th>Tests</th>
+                        <th>Cobertura</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FrameParser</strong></td>
+                        <td>15</td>
+                        <td><span class="badge success">100%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FrameBuilder</strong></td>
+                        <td>17</td>
+                        <td><span class="badge success">100%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Handlers (10)</strong></td>
+                        <td>26</td>
+                        <td><span class="badge success">100%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CommandRegistry</strong></td>
+                        <td>16</td>
+                        <td><span class="badge success">100%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ConnectionHandler</strong></td>
+                        <td>11</td>
+                        <td><span class="badge warning">~99%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>TcpServer</strong></td>
+                        <td>5</td>
+                        <td><span class="badge warning">~94%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Environment</strong></td>
+                        <td>16</td>
+                        <td><span class="badge success">100%</span></td>
+                    </tr>
+                    <tr style="font-weight: 700; background: #f0f0f0;">
+                        <td>TOTAL</td>
+                        <td>122 tests</td>
+                        <td><span class="badge" style="background: #667eea;">~96%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <strong>Requisito en CI/CD:</strong> ≥80% coverage obligatorio. Actualmente alcanzando ~96%.
+            </div>
+        </div>
+
+        <!-- Variables Entorno -->
+        <div class="section">
+            <h2>🔧 Configuración & Variables de Entorno</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Default</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>WATCH_TCP_PORT</code></td>
+                        <td><code>9000</code></td>
+                        <td>Puerto del servidor TCP para relojes</td>
+                    </tr>
+                    <tr>
+                        <td><code>NODE_ENV</code></td>
+                        <td><code>development</code></td>
+                        <td>Entorno de ejecución</td>
+                    </tr>
+                    <tr>
+                        <td><code>LOG_LEVEL</code></td>
+                        <td><code>info</code></td>
+                        <td>Nivel de logging (error|warn|info|debug)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Key Decisions -->
+        <div class="section">
+            <h2>💡 Decisiones Clave de Arquitectura</h2>
+
+            <div class="subsection">
+                <h3><span class="icon">1️⃣</span> TCP Server Nativo (sin Express)</h3>
+                <p><code>net.Server</code> nativo permite optimizar para protocolo binario raw, sin overhead HTTP.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">2️⃣</span> Command Pattern con Handler Registry</h3>
+                <p>Dispatch O(1) mediante Map. Facilita agregar nuevos comandos sin modificar código central.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">3️⃣</span> Handlers retornan strings (no escriben socket)</h3>
+                <p>Separación de concernimientos: lógica de negocio ≠ I/O. Facilita testing.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">4️⃣</span> Manejo automático de fragmentación TCP</h3>
+                <p><code>ConnectionHandler</code> scanea <code>[...]</code> en buffer acumulado — maneja múltiples eventos data.</p>
+            </div>
+
+            <div class="subsection">
+                <h3><span class="icon">5️⃣</span> NLB Layer 4 → SG permite 0.0.0.0/0</h3>
+                <p>NLB preserva IP de cliente pero no tiene SG propio. El SG ECS debe permitir todos los IPs.</p>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>📊 Infografía Interactiva — lgmk-pers-fa-watch-facade • Febrero 2026</p>
+            <p>Node.js 24 | TypeScript 5.7 | AWS ECS Fargate | NLB | Jest ~96% coverage</p>
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(e, tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            e.target.classList.add('active');
+        }
+
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
